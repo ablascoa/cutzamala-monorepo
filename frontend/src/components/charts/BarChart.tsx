@@ -12,6 +12,7 @@ import {
   ReferenceLine
 } from 'recharts';
 import { formatNumber, formatDate, formatShortDate } from '@/lib/utils';
+import { parseApiDate } from '@/lib/dateUtils';
 import { CutzamalaReading } from '@/types';
 
 interface BarChartProps {
@@ -19,6 +20,7 @@ interface BarChartProps {
   showPercentage: boolean;
   reservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
   height?: number;
+  granularity?: string;
 }
 
 const RESERVOIR_CONFIG = {
@@ -36,7 +38,7 @@ const RESERVOIR_CONFIG = {
   }
 };
 
-export function BarChart({ data, showPercentage, reservoirs, height = 400 }: BarChartProps) {
+export function BarChart({ data, showPercentage, reservoirs, height = 400, granularity = 'daily' }: BarChartProps) {
   // Backend provides data in correct ascending order
 
   const formatTooltipValue = (value: number) => {
@@ -75,7 +77,19 @@ export function BarChart({ data, showPercentage, reservoirs, height = 400 }: Bar
           
           <XAxis 
             dataKey="date"
-            tickFormatter={(value) => formatShortDate(value)}
+            tickFormatter={(value) => {
+              if (granularity === 'weekly' && value.includes(' to ')) {
+                const startDate = value.split(' to ')[0];
+                return formatShortDate(startDate);
+              }
+              if (granularity === 'monthly') {
+                return parseApiDate(value).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+              }
+              if (granularity === 'yearly') {
+                return value;
+              }
+              return formatShortDate(parseApiDate(value).toISOString().split('T')[0]);
+            }}
             angle={-45}
             textAnchor="end"
             height={60}

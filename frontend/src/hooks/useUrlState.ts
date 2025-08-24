@@ -10,6 +10,7 @@ export interface DashboardState {
   startDate: Date | null;
   endDate: Date | null;
   selectedReservoirs: string[];
+  visibleLines: string[];
   showPercentage: boolean;
   granularity: Granularity;
   chartType: ChartType;
@@ -23,6 +24,7 @@ const DEFAULT_STATE: DashboardState = {
   })(),
   endDate: new Date(),
   selectedReservoirs: ['valle_bravo', 'villa_victoria', 'el_bosque'],
+  visibleLines: ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   showPercentage: true,
   granularity: 'daily',
   chartType: 'line',
@@ -43,6 +45,7 @@ export function useUrlState() {
     const startDateParam = searchParams.get('startDate');
     const endDateParam = searchParams.get('endDate');
     const reservoirsParam = searchParams.get('reservoirs');
+    const visibleLinesParam = searchParams.get('visibleLines');
     const showPercentageParam = searchParams.get('showPercentage');
     const granularityParam = searchParams.get('granularity');
     const chartTypeParam = searchParams.get('chartType');
@@ -53,6 +56,9 @@ export function useUrlState() {
       selectedReservoirs: reservoirsParam 
         ? reservoirsParam.split(',').filter(Boolean)
         : DEFAULT_STATE.selectedReservoirs,
+      visibleLines: visibleLinesParam 
+        ? visibleLinesParam.split(',').filter(Boolean)
+        : DEFAULT_STATE.visibleLines,
       showPercentage: showPercentageParam !== null 
         ? showPercentageParam === 'true' 
         : DEFAULT_STATE.showPercentage,
@@ -85,6 +91,10 @@ export function useUrlState() {
 
       if (JSON.stringify(newState.selectedReservoirs.sort()) !== JSON.stringify(DEFAULT_STATE.selectedReservoirs.sort())) {
         params.set('reservoirs', newState.selectedReservoirs.join(','));
+      }
+
+      if (JSON.stringify(newState.visibleLines.sort()) !== JSON.stringify(DEFAULT_STATE.visibleLines.sort())) {
+        params.set('visibleLines', newState.visibleLines.join(','));
       }
 
       if (newState.showPercentage !== DEFAULT_STATE.showPercentage) {
@@ -121,6 +131,11 @@ export function useUrlState() {
     [updateState]
   );
 
+  const setVisibleLines = useCallback(
+    (visibleLines: string[]) => updateState({ visibleLines }),
+    [updateState]
+  );
+
   const setShowPercentage = useCallback(
     (showPercentage: boolean) => updateState({ showPercentage }),
     [updateState]
@@ -149,6 +164,7 @@ export function useUrlState() {
     setStartDate,
     setEndDate,
     setSelectedReservoirs,
+    setVisibleLines,
     setShowPercentage,
     setGranularity,
     setChartType,

@@ -105,6 +105,7 @@ export class CutzamalaApiService {
       end_date: endDate,
       granularity,
       order: 'asc',
+      limit: 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
 
@@ -123,6 +124,7 @@ export class CutzamalaApiService {
       ...params,
       reservoirs: reservoirs.join(','),
       order: params?.order || 'asc',
+      limit: params?.limit || 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
 
@@ -165,6 +167,7 @@ export class CutzamalaApiService {
       end_date: endDate,
       granularity,
       order: 'asc',
+      limit: 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
 }

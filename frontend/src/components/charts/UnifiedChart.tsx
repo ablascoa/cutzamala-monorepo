@@ -11,16 +11,20 @@ interface UnifiedChartProps {
   data: CutzamalaReading[];
   showPercentage: boolean;
   reservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
+  visibleLines?: string[];
   chartType: ChartType;
   height?: number;
+  granularity?: string;
 }
 
 export function UnifiedChart({
   data,
   showPercentage,
   reservoirs,
+  visibleLines = ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   chartType,
-  height = 500
+  height = 500,
+  granularity = 'daily'
 }: UnifiedChartProps) {
   // For gauge charts, we need the latest reading
   const latestReading = data[data.length - 1];
@@ -61,6 +65,7 @@ export function UnifiedChart({
           showPercentage={showPercentage}
           reservoirs={reservoirs}
           height={height}
+          granularity={granularity}
         />
       );
     case 'bar':
@@ -70,6 +75,7 @@ export function UnifiedChart({
           showPercentage={showPercentage}
           reservoirs={reservoirs}
           height={height}
+          granularity={granularity}
         />
       );
     case 'line':
@@ -79,7 +85,9 @@ export function UnifiedChart({
           data={data}
           showPercentage={showPercentage}
           reservoirs={reservoirs}
+          visibleLines={visibleLines}
           height={height}
+          granularity={granularity}
         />
       );
   }

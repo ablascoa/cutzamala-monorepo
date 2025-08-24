@@ -9,10 +9,10 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Brush,
   ReferenceLine,
 } from 'recharts';
 import { format } from 'date-fns';
+import { parseApiDate, formatDateForDisplay } from '@/lib/dateUtils';
 import type { CutzamalaReading } from '@/types/api';
 
 interface TimeSeriesChartProps {
@@ -20,9 +20,10 @@ interface TimeSeriesChartProps {
   showPercentage?: boolean;
   showStorage?: boolean;
   reservoirs?: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
+  visibleLines?: string[];
   height?: number;
   className?: string;
-  showBrush?: boolean;
+  granularity?: string;
   showReferenceLines?: boolean;
 }
 
@@ -43,15 +44,16 @@ export function TimeSeriesChart({
   data,
   showPercentage = true,
   reservoirs = ['valle_bravo', 'villa_victoria', 'el_bosque'],
+  visibleLines = ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   height = 400,
   className = '',
-  showBrush = true,
+  granularity = 'daily',
   showReferenceLines = true,
 }: TimeSeriesChartProps) {
   // Transform data for Recharts (backend provides data in correct order)
   const chartData = data.map((reading) => ({
     date: reading.date,
-    formattedDate: format(new Date(reading.date), 'MMM dd, yyyy'),
+    formattedDate: formatDateForDisplay(reading.date, granularity),
     // Percentage data
     valle_bravo_pct: reading.reservoirs.valle_bravo.percentage,
     villa_victoria_pct: reading.reservoirs.villa_victoria.percentage,
@@ -75,7 +77,7 @@ export function TimeSeriesChart({
     label?: string;
   }) => {
     if (active && payload && payload.length && label) {
-      const date = format(new Date(label), 'MMMM dd, yyyy');
+      const date = format(parseApiDate(label), 'MMMM dd, yyyy');
       
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border">
@@ -117,7 +119,20 @@ export function TimeSeriesChart({
           <XAxis
             dataKey="date"
             tick={{ fontSize: 12 }}
-            tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+            tickFormatter={(value) => {
+              if (granularity === 'weekly' && value.includes(' to ')) {
+                // For weekly, show start date only
+                const startDate = value.split(' to ')[0];
+                return format(new Date(startDate + 'T00:00:00'), 'MMM dd');
+              }
+              if (granularity === 'monthly') {
+                return format(parseApiDate(value), 'MMM yyyy');
+              }
+              if (granularity === 'yearly') {
+                return value;
+              }
+              return format(parseApiDate(value), 'MMM dd');
+            }}
             stroke="#6b7280"
           />
           <YAxis
@@ -132,7 +147,7 @@ export function TimeSeriesChart({
             iconType="line"
           />
           
-          {reservoirs.includes('valle_bravo') && (
+          {reservoirs.includes('valle_bravo') && visibleLines.includes('valle_bravo') && (
             <Line
               type="monotone"
               dataKey={`valle_bravo${dataKeySuffix}`}
@@ -144,7 +159,7 @@ export function TimeSeriesChart({
             />
           )}
           
-          {reservoirs.includes('villa_victoria') && (
+          {reservoirs.includes('villa_victoria') && visibleLines.includes('villa_victoria') && (
             <Line
               type="monotone"
               dataKey={`villa_victoria${dataKeySuffix}`}
@@ -156,7 +171,7 @@ export function TimeSeriesChart({
             />
           )}
           
-          {reservoirs.includes('el_bosque') && (
+          {reservoirs.includes('el_bosque') && visibleLines.includes('el_bosque') && (
             <Line
               type="monotone"
               dataKey={`el_bosque${dataKeySuffix}`}
@@ -169,7 +184,7 @@ export function TimeSeriesChart({
           )}
           
           {/* System total line (optional, shown when all reservoirs are selected) */}
-          {reservoirs.length === 3 && (
+          {reservoirs.length === 3 && visibleLines.includes('system_total') && (
             <Line
               type="monotone"
               dataKey={`system${dataKeySuffix}`}
@@ -200,15 +215,6 @@ export function TimeSeriesChart({
             </>
           )}
 
-          {/* Brush for zooming */}
-          {showBrush && chartData.length > 30 && (
-            <Brush 
-              dataKey="date" 
-              height={30}
-              stroke={RESERVOIR_COLORS.system}
-              tickFormatter={(value) => format(new Date(value), 'MMM dd')}
-            />
-          )}
         </LineChart>
       </ResponsiveContainer>
     </div>

@@ -9,8 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  Brush
+  ResponsiveContainer
 } from 'recharts';
 import { formatNumber, formatDate, formatShortDate } from '@/lib/utils';
 import { CutzamalaReading } from '@/types';
@@ -182,11 +181,6 @@ export function RainfallCorrelationChart({
               activeDot={{ r: 4 }}
             />
 
-            <Brush 
-              dataKey="date" 
-              height={30}
-              tickFormatter={(value) => formatShortDate(value)}
-            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

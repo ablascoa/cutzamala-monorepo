@@ -1,92 +1,103 @@
 'use client';
 
-import { CheckSquare, Square, Droplets } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface ReservoirSelectorProps {
   selectedReservoirs: string[];
-  onSelectionChange: (reservoirs: string[]) => void;
+  onReservoirToggle: (reservoirs: string[]) => void;
   className?: string;
 }
 
-const RESERVOIRS = [
-  { id: 'valle_bravo', name: 'Valle de Bravo', color: 'bg-blue-500' },
-  { id: 'villa_victoria', name: 'Villa Victoria', color: 'bg-red-500' },
-  { id: 'el_bosque', name: 'El Bosque', color: 'bg-green-500' },
-];
+const RESERVOIR_CONFIG = {
+  valle_bravo: {
+    name: 'Valle de Bravo',
+    color: '#2563eb', // blue
+  },
+  villa_victoria: {
+    name: 'Villa Victoria',
+    color: '#dc2626', // red
+  },
+  el_bosque: {
+    name: 'El Bosque',
+    color: '#16a34a', // green
+  },
+};
 
-export function ReservoirSelector({
-  selectedReservoirs,
-  onSelectionChange,
-  className = '',
-}: ReservoirSelectorProps) {
-  const handleReservoirToggle = (reservoirId: string) => {
-    const newSelection = selectedReservoirs.includes(reservoirId)
-      ? selectedReservoirs.filter(id => id !== reservoirId)
-      : [...selectedReservoirs, reservoirId];
+const SYSTEM_TOTAL = {
+  name: 'Sistema Total',
+  color: '#6b7280', // gray
+};
+
+export function ReservoirSelector({ selectedReservoirs, onReservoirToggle, className = '' }: ReservoirSelectorProps) {
+  const toggleReservoir = (reservoir: string) => {
+    const newSelection = selectedReservoirs.includes(reservoir)
+      ? selectedReservoirs.filter(r => r !== reservoir)
+      : [...selectedReservoirs, reservoir];
     
-    onSelectionChange(newSelection);
+    onReservoirToggle(newSelection);
   };
 
-  const handleSelectAll = () => {
-    if (selectedReservoirs.length === RESERVOIRS.length) {
-      onSelectionChange([]);
-    } else {
-      onSelectionChange(RESERVOIRS.map(r => r.id));
-    }
+  const toggleSystemTotal = () => {
+    const newSelection = selectedReservoirs.includes('system_total')
+      ? selectedReservoirs.filter(r => r !== 'system_total')
+      : [...selectedReservoirs, 'system_total'];
+    
+    onReservoirToggle(newSelection);
   };
-
-  const allSelected = selectedReservoirs.length === RESERVOIRS.length;
 
   return (
-    <div className={`space-y-3 ${className}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Droplets className="w-4 h-4 text-blue-600" />
-          <span className="text-sm font-medium text-gray-700">Embalses</span>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSelectAll}
-          className="text-xs"
-        >
-          {allSelected ? 'Deseleccionar todo' : 'Seleccionar todo'}
-        </Button>
-      </div>
-
-      <div className="space-y-2">
-        {RESERVOIRS.map((reservoir) => {
-          const isSelected = selectedReservoirs.includes(reservoir.id);
-          
+    <div className={`flex items-center space-x-2 ${className}`}>
+      <span className="text-sm font-medium text-gray-700">Líneas:</span>
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Individual Reservoirs */}
+        {Object.entries(RESERVOIR_CONFIG).map(([key, config]) => {
+          const isSelected = selectedReservoirs.includes(key);
           return (
-            <div
-              key={reservoir.id}
-              className={`flex items-center space-x-3 p-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
-                isSelected ? 'bg-gray-50 ring-1 ring-gray-200' : ''
+            <button
+              key={key}
+              onClick={() => toggleReservoir(key)}
+              className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 border ${
+                isSelected
+                  ? 'border-gray-300 text-gray-800 bg-white shadow-sm'
+                  : 'border-gray-200 text-gray-400 bg-gray-50'
               }`}
-              onClick={() => handleReservoirToggle(reservoir.id)}
+              title={`${isSelected ? 'Ocultar' : 'Mostrar'} ${config.name}`}
             >
               {isSelected ? (
-                <CheckSquare className="w-5 h-5 text-blue-600" />
+                <Eye className="w-3 h-3" />
               ) : (
-                <Square className="w-5 h-5 text-gray-400" />
+                <EyeOff className="w-3 h-3" />
               )}
-              
-              <div className={`w-3 h-3 rounded-full ${reservoir.color}`} />
-              
-              <span className={`text-sm ${
-                isSelected ? 'text-gray-900 font-medium' : 'text-gray-600'
-              }`}>
-                {reservoir.name}
-              </span>
-            </div>
+              <div 
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: isSelected ? config.color : '#d1d5db' }}
+              />
+              <span>{config.name}</span>
+            </button>
           );
         })}
-      </div>
-
-      <div className="text-xs text-gray-500">
-        {selectedReservoirs.length} de {RESERVOIRS.length} seleccionados
+        
+        {/* System Total */}
+        <button
+          onClick={toggleSystemTotal}
+          className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 border ${
+            selectedReservoirs.includes('system_total')
+              ? 'border-gray-300 text-gray-800 bg-white shadow-sm'
+              : 'border-gray-200 text-gray-400 bg-gray-50'
+          }`}
+          title={`${selectedReservoirs.includes('system_total') ? 'Ocultar' : 'Mostrar'} Sistema Total`}
+        >
+          {selectedReservoirs.includes('system_total') ? (
+            <Eye className="w-3 h-3" />
+          ) : (
+            <EyeOff className="w-3 h-3" />
+          )}
+          <div 
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: selectedReservoirs.includes('system_total') ? SYSTEM_TOTAL.color : '#d1d5db' }}
+          />
+          <span>{SYSTEM_TOTAL.name}</span>
+        </button>
       </div>
     </div>
   );
