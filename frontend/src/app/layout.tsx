@@ -3,9 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { RouteErrorBoundary } from "@/components/error-boundaries/RouteErrorBoundary";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,17 +34,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <ThemeProvider>
-          <NotificationProvider>
-            <Header />
-            <main className="flex-1">
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-            </main>
-            <Footer />
-          </NotificationProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <NotificationProvider>
+              <Header />
+              <main className="flex-1">
+                <RouteErrorBoundary>
+                  {children}
+                </RouteErrorBoundary>
+              </main>
+              <Footer />
+            </NotificationProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

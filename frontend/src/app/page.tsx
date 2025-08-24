@@ -1,20 +1,19 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { StatusCardSkeleton, ChartSkeleton } from '@/components/ui/Skeleton';
-import { StorageIndicator, WaterLevel } from '@/components/ui/StorageIndicator';
+import { WaterLevel } from '@/components/ui/StorageIndicator';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { UnifiedChart } from '@/components/charts/UnifiedChart';
 import { MultiRainfallChart } from '@/components/charts/MultiRainfallChart';
 import { RainfallCorrelationChart } from '@/components/charts/RainfallCorrelationChart';
 import { useDateRangeData } from '@/hooks/useCutzamalaData';
+import { useUrlState } from '@/hooks/useUrlState';
 import { formatNumber, formatDate } from '@/lib/utils';
-import { Droplets, TrendingUp, Cloud } from 'lucide-react';
+import { Droplets, TrendingUp, Cloud, RotateCcw } from 'lucide-react';
 import { Tabs } from '@/components/ui/Tabs';
-import { ChartType } from '@/components/controls/ChartTypeSelector';
-
-const DEFAULT_RESERVOIRS = ['valle_bravo', 'villa_victoria', 'el_bosque'];
+import { ChartErrorBoundary } from '@/components/error-boundaries';
 
 const RESERVOIR_NAMES = {
   valle_bravo: 'Valle de Bravo',
@@ -22,17 +21,13 @@ const RESERVOIR_NAMES = {
   el_bosque: 'El Bosque'
 } as const;
 
-export default function Home() {
-  const [startDate] = useState<Date | null>(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 90); // Default: last 90 days
-    return date;
-  });
-  const [endDate] = useState<Date | null>(new Date());
-  const [selectedReservoirs] = useState<string[]>(DEFAULT_RESERVOIRS);
-  const [showPercentage, setShowPercentage] = useState(true);
-  const [granularity, setGranularity] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
-  const [chartType] = useState<ChartType>('line');
+function HomeContent() {
+  const {
+    state: { startDate, endDate, selectedReservoirs, showPercentage, granularity, chartType },
+    setShowPercentage,
+    setGranularity,
+    resetState
+  } = useUrlState();
 
 
   // Fetch data based on current filters
@@ -231,6 +226,16 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+
+              {/* Reset Button */}
+              <button
+                onClick={resetState}
+                className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors"
+                title="Restablecer filtros"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Restablecer</span>
+              </button>
             </div>
           </div>
 
@@ -245,13 +250,15 @@ export default function Home() {
           )}
 
           {!loading && !error && filteredData.length > 0 && selectedReservoirs.length > 0 && (
-            <UnifiedChart
-              data={filteredData}
-              showPercentage={showPercentage}
-              reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
-              chartType={chartType}
-              height={500}
-            />
+            <ChartErrorBoundary height={500} onRetry={() => refresh()}>
+              <UnifiedChart
+                data={filteredData}
+                showPercentage={showPercentage}
+                reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
+                chartType={chartType}
+                height={500}
+              />
+            </ChartErrorBoundary>
           )}
 
           {!loading && !error && selectedReservoirs.length === 0 && (
@@ -287,11 +294,13 @@ export default function Home() {
               {loading ? (
                 <ChartSkeleton height={400} />
               ) : (
-                <MultiRainfallChart
-                  data={filteredData}
-                  reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
-                  height={400}
-                />
+                <ChartErrorBoundary height={400} onRetry={() => refresh()}>
+                  <MultiRainfallChart
+                    data={filteredData}
+                    reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
+                    height={400}
+                  />
+                </ChartErrorBoundary>
               )}
             </CardContent>
           </Card>
@@ -312,33 +321,35 @@ export default function Home() {
                 {loading ? (
                   <ChartSkeleton height={400} />
                 ) : (
-                  <Tabs
-                    tabs={[
-                      {
-                        id: 'system_total',
-                        label: 'Sistema Total',
-                        content: (
-                          <RainfallCorrelationChart
-                            data={filteredData}
-                            reservoir="system_total"
-                            height={400}
-                          />
-                        )
-                      },
-                      ...selectedReservoirs.map(reservoir => ({
-                        id: reservoir,
-                        label: RESERVOIR_NAMES[reservoir as keyof typeof RESERVOIR_NAMES],
-                        content: (
-                          <RainfallCorrelationChart
-                            data={filteredData}
-                            reservoir={reservoir as 'valle_bravo' | 'villa_victoria' | 'el_bosque'}
-                            height={400}
-                          />
-                        )
-                      }))
-                    ]}
-                    defaultTab="system_total"
-                  />
+                  <ChartErrorBoundary height={400} onRetry={() => refresh()}>
+                    <Tabs
+                      tabs={[
+                        {
+                          id: 'system_total',
+                          label: 'Sistema Total',
+                          content: (
+                            <RainfallCorrelationChart
+                              data={filteredData}
+                              reservoir="system_total"
+                              height={400}
+                            />
+                          )
+                        },
+                        ...selectedReservoirs.map(reservoir => ({
+                          id: reservoir,
+                          label: RESERVOIR_NAMES[reservoir as keyof typeof RESERVOIR_NAMES],
+                          content: (
+                            <RainfallCorrelationChart
+                              data={filteredData}
+                              reservoir={reservoir as 'valle_bravo' | 'villa_victoria' | 'el_bosque'}
+                              height={400}
+                            />
+                          )
+                        }))
+                      ]}
+                      defaultTab="system_total"
+                    />
+                  </ChartErrorBoundary>
                 )}
               </CardContent>
             </Card>
@@ -346,5 +357,27 @@ export default function Home() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <div className="h-8 bg-gray-200 rounded w-96 mb-2"></div>
+          <div className="h-4 bg-gray-100 rounded w-full max-w-2xl"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <StatusCardSkeleton />
+          <StatusCardSkeleton />
+          <StatusCardSkeleton />
+          <StatusCardSkeleton />
+        </div>
+        <ChartSkeleton height={500} />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
