@@ -15,6 +15,7 @@ export class MockCutzamalaApiService {
   private simulateNetworkDelay = true;
   private baseDelay = 300; // Base delay in milliseconds
   private maxDelay = 800; // Maximum delay in milliseconds
+  private forceEmpty = false; // Force empty responses for testing
   
   constructor(options?: { simulateDelay?: boolean; baseDelay?: number }) {
     this.simulateNetworkDelay = options?.simulateDelay ?? true;
@@ -117,7 +118,7 @@ export class MockCutzamalaApiService {
       await this.delay();
       
       // Generate mock data
-      const data = generateMockCutzamalaData(params);
+      const data = generateMockCutzamalaData(params, this.forceEmpty);
       
       console.log('🔬 Mock API: Generated', data.readings.length, 'readings');
       
@@ -196,7 +197,9 @@ export class MockCutzamalaApiService {
       await this.delay();
       
       // Generate recent data
-      const data = generateRecentReadings(days);
+      const data = this.forceEmpty 
+        ? generateMockCutzamalaData({ granularity: 'daily' }, true)
+        : generateRecentReadings(days);
       
       console.log('🔬 Mock API: Generated', data.readings.length, 'recent readings');
       
@@ -249,6 +252,15 @@ export class MockCutzamalaApiService {
       this.baseDelay = baseDelay;
     }
     console.log('🔬 Mock API: Delay simulation', enabled ? 'enabled' : 'disabled');
+  }
+
+  /**
+   * Enable or disable empty data mode for testing
+   * @param enabled - Whether to return empty data
+   */
+  setEmptyMode(enabled: boolean): void {
+    this.forceEmpty = enabled;
+    console.log('🔬 Mock API: Empty mode', enabled ? 'enabled' : 'disabled');
   }
 }
 

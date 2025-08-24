@@ -138,3 +138,24 @@ export class CutzamalaApiService {
 
 // Export a singleton instance
 export const cutzamalaApi = new CutzamalaApiService();
+
+// Global testing methods for development
+if (typeof window !== 'undefined' && env.enableDebugMode) {
+  // @ts-ignore - Global testing utilities
+  window.testEmptyStates = {
+    enable: () => {
+      if (env.useMockData) {
+        mockCutzamalaApi.setEmptyMode(true);
+        console.log('🧪 Empty states enabled. Refresh the page to see empty cards and charts.');
+      } else {
+        console.log('⚠️ Empty states testing only works with mock data. Set NEXT_PUBLIC_USE_MOCK_DATA=true');
+      }
+    },
+    disable: () => {
+      if (env.useMockData) {
+        mockCutzamalaApi.setEmptyMode(false);
+        console.log('🧪 Empty states disabled. Refresh the page to see normal data.');
+      }
+    }
+  };
+}

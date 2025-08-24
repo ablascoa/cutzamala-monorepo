@@ -279,7 +279,7 @@ function averageReadings(readings: CutzamalaReading[], date: string): CutzamalaR
  * @param params - Query parameters for filtering
  * @returns Mock API response with realistic data
  */
-export function generateMockCutzamalaData(params?: CutzamalaQueryParams): CutzamalaResponse {
+export function generateMockCutzamalaData(params?: CutzamalaQueryParams, forceEmpty = false): CutzamalaResponse {
   const {
     start_date,
     end_date,
@@ -298,11 +298,14 @@ export function generateMockCutzamalaData(params?: CutzamalaQueryParams): Cutzam
   
   // Generate daily readings for the entire range
   const dailyReadings: CutzamalaReading[] = [];
-  const currentDate = new Date(startDate);
   
-  while (currentDate <= endDate) {
-    dailyReadings.push(generateCutzamalaReading(new Date(currentDate)));
-    currentDate.setDate(currentDate.getDate() + 1);
+  if (!forceEmpty) {
+    const currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+      dailyReadings.push(generateCutzamalaReading(new Date(currentDate)));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
   }
   
   // Aggregate based on granularity
