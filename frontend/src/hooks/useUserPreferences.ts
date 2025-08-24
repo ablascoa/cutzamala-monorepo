@@ -36,6 +36,7 @@ export function useUserPreferences() {
 
   // Apply default preferences when component mounts (if URL doesn't have values)
   useEffect(() => {
+    // Only run once on mount
     const searchParams = new URLSearchParams(window.location.search);
     const hasUrlState = searchParams.has('startDate') || 
                        searchParams.has('endDate') || 
@@ -58,7 +59,8 @@ export function useUserPreferences() {
         selectedReservoirs: preferences.favoriteReservoirs,
       });
     }
-  }, [preferences, updateState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Helper functions to update specific preferences
   const updatePreference = <K extends keyof UserPreferences>(
