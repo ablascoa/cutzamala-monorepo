@@ -32,6 +32,7 @@ CREATE TABLE cutzamala_readings (
     
     -- Metadata
     source_pdf VARCHAR(255),
+    is_synthetic BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

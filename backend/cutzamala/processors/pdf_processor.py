@@ -76,10 +76,8 @@ class PDFProcessor:
                     el_bosque_pct = float(row[8]) if row[8] and str(row[8]) != '0.0' and row[8] != '' else 0.0
                     el_bosque_lluvia = float(row[9]) if row[9] and str(row[9]) != '0.0' and row[9] != '' else 0.0
 
-                    # Total in m3 (convert from string with commas to number)
-                    total_str = str(row[10]) if len(row) > 10 and row[10] else "0"
-                    total_clean = re.sub(r'[^\d]', '', total_str)
-                    total_mm3 = int(total_clean) if total_clean and total_clean != '0' else 0
+                    # Calculate total from individual reservoirs (more reliable than PDF total field)
+                    total_mm3 = valle_bravo_mm3 + villa_victoria_mm3 + el_bosque_mm3
 
                     total_pct = float(row[11]) if len(row) > 11 and row[11] and str(row[11]) != '0.0' and row[11] != '' else 0.0
 
@@ -150,7 +148,7 @@ class PDFProcessor:
                             "el_bosque_mm3": float(match.group(8)),
                             "el_bosque_pct": float(match.group(9)),
                             "el_bosque_lluvia": float(match.group(10)),
-                            "total_mm3": int(match.group(11).replace(',', '').replace('.', '')),
+                            "total_mm3": float(match.group(2)) + float(match.group(5)) + float(match.group(8)),
                             "total_pct": float(match.group(12))
                         })
                     except (ValueError, IndexError) as e:
