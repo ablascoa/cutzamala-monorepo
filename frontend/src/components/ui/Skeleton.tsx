@@ -41,7 +41,7 @@ export function ChartSkeleton({ height = 400 }: { height?: number }) {
  */
 export function StatusCardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card p-4 space-y-3">
+    <div className="rounded-lg border bg-white dark:bg-gray-950 p-4 space-y-3">
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-8 w-16" />
       <Skeleton className="h-3 w-20" />

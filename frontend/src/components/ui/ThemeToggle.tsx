@@ -14,7 +14,7 @@ export default function ThemeToggle() {
   ];
 
   return (
-    <div className="flex items-center rounded-md border bg-card/50 p-0.5">
+    <div className="flex items-center rounded-md border bg-secondary p-0.5">
       {themes.map(({ value, icon: Icon, label }) => (
         <button
           key={value}

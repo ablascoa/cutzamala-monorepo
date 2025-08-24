@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b bg-background border-border">
+      <header className="border-b bg-white text-gray-900 border-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:border-gray-800">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
