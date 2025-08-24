@@ -56,7 +56,35 @@ export class CutzamalaApiService {
     if (params?.limit) queryParams.limit = params.limit;
     if (params?.offset) queryParams.offset = params.offset;
 
-    return this.client.get<CutzamalaResponse>('/cutzamala-readings', queryParams);
+    try {
+      const response = await this.client.get<CutzamalaResponse>('/cutzamala-readings', queryParams);
+      
+      // If the response is successful, return it
+      if (response.status === 'success') {
+        return response;
+      }
+      
+      // If the response has an error, only fall back to mock data if mock data is enabled
+      if (env.isDevelopment && env.useMockData) {
+        console.warn('🔄 API request failed, falling back to mock data:', response.error);
+        return mockCutzamalaApi.getCutzamalaReadings(params);
+      } else if (env.isDevelopment) {
+        console.warn('❌ API request failed. Mock data is disabled, showing error state:', response.error);
+      }
+      
+      return response;
+    } catch (error) {
+      // Only fallback to mock data on network errors if mock data is enabled
+      if (env.isDevelopment && env.useMockData) {
+        console.warn('🔄 Network error occurred, falling back to mock data:', error);
+        return mockCutzamalaApi.getCutzamalaReadings(params);
+      } else if (env.isDevelopment) {
+        console.warn('❌ Network error occurred. Mock data is disabled, showing error state:', error);
+      }
+      
+      // In production or when mock data is disabled, re-throw the error
+      throw error;
+    }
   }
 
   /**
@@ -157,5 +185,36 @@ if (typeof window !== 'undefined' && env.enableDebugMode) {
         console.log('🧪 Empty states disabled. Refresh the page to see normal data.');
       }
     }
+  };
+
+  // @ts-ignore - Global cache utilities
+  window.clearApiCache = () => {
+    // Clear React Query cache
+    if (typeof window !== 'undefined' && (window as any).queryClient) {
+      (window as any).queryClient.clear();
+      console.log('✅ React Query cache cleared');
+    }
+    
+    // Force page reload to ensure clean state
+    window.location.reload();
+  };
+
+  // @ts-ignore - Global debug utilities
+  window.debugApiConfig = () => {
+    console.log('🔧 API Configuration:');
+    console.log('  - Mock data enabled:', env.useMockData);
+    console.log('  - API base URL:', API_BASE_URL);
+    console.log('  - Debug mode:', env.enableDebugMode);
+    console.log('  - Development mode:', env.isDevelopment);
+    console.log('  - Fallback behavior: ', env.useMockData ? 'Will use mock data on errors' : 'Will show error states on failures');
+  };
+
+  // @ts-ignore - Global testing utilities
+  window.testApiFailure = () => {
+    console.log('🧪 Testing API failure behavior...');
+    console.log('Current config:');
+    console.log('  - Mock data enabled:', env.useMockData);
+    console.log('Expected behavior:', env.useMockData ? 'Should fallback to mock data' : 'Should show error/empty state');
+    console.log('To test: Stop backend server or change API URL to trigger failure');
   };
 }

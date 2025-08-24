@@ -54,7 +54,12 @@ export class ApiClient {
       }
 
       const data = await response.json();
-      return data;
+      
+      // Wrap the successful response in the expected ApiResponse format
+      return {
+        status: 'success',
+        data: data,
+      };
     } catch (error) {
       if (error instanceof ApiClientError) {
         return {

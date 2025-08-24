@@ -29,6 +29,11 @@ export const queryClient = new QueryClient({
   defaultOptions: queryConfig,
 });
 
+// Make queryClient available globally for debugging in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as any).queryClient = queryClient;
+}
+
 // React Query keys for consistent cache management
 export const queryKeys = {
   cutzamala: {
