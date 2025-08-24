@@ -32,13 +32,13 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-surface-50 text-surface-900 dark:bg-surface-900 dark:text-surface-50`}
       >
         <QueryProvider>
           <ThemeProvider>
             <NotificationProvider>
               <Header />
-              <main className="flex-1">
+              <main className="flex-1 bg-surface-50 dark:bg-surface-900">
                 <RouteErrorBoundary>
                   {children}
                 </RouteErrorBoundary>

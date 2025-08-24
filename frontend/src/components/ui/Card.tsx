@@ -10,7 +10,7 @@ export function Card({ className, children, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50",
+        "rounded-lg bg-surface-50 text-surface-900 shadow-elevation-1 border border-surface-300 transition-all duration-200 hover:shadow-elevation-2 dark:bg-surface-900 dark:text-surface-50 dark:border-surface-700",
         className
       )}
       {...props}
@@ -26,7 +26,7 @@ interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function CardHeader({ className, children, ...props }: CardHeaderProps) {
   return (
-    <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
+    <div className={cn("flex flex-col space-y-2 p-6", className)} {...props}>
       {children}
     </div>
   );
@@ -40,7 +40,7 @@ export function CardTitle({ className, children, ...props }: CardTitleProps) {
   return (
     <h3
       className={cn(
-        "text-2xl font-semibold leading-none tracking-tight",
+        "text-title-large text-surface-900 dark:text-surface-50",
         className
       )}
       {...props}
@@ -57,7 +57,7 @@ interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement
 export function CardDescription({ className, children, ...props }: CardDescriptionProps) {
   return (
     <p
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-body-medium text-secondary-600 dark:text-secondary-400", className)}
       {...props}
     >
       {children}
