@@ -8,10 +8,11 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { UnifiedChart } from '@/components/charts/UnifiedChart';
 import { MultiRainfallChart } from '@/components/charts/MultiRainfallChart';
 import { RainfallCorrelationChart } from '@/components/charts/RainfallCorrelationChart';
+import { EmptyChart } from '@/components/charts/EmptyChart';
 import { useDateRangeData } from '@/hooks/useCutzamalaData';
 import { useUrlState } from '@/hooks/useUrlState';
 import { formatNumber, formatDate } from '@/lib/utils';
-import { Droplets, TrendingUp, Cloud, RotateCcw } from 'lucide-react';
+import { TrendingUp, Cloud, RotateCcw } from 'lucide-react';
 import { Tabs } from '@/components/ui/Tabs';
 import { ChartErrorBoundary } from '@/components/error-boundaries';
 
@@ -144,7 +145,70 @@ function HomeContent() {
             </CardContent>
           </Card>
           </>
-        ) : null}
+        ) : (
+          // Empty state cards - always show structure
+          <>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-blue-700">Valle de Bravo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400">--</div>
+                    <p className="text-xs text-muted-foreground">Sin datos</p>
+                  </div>
+                  <WaterLevel percentage={0} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-red-700">Villa Victoria</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400">--</div>
+                    <p className="text-xs text-muted-foreground">Sin datos</p>
+                  </div>
+                  <WaterLevel percentage={0} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-green-700">El Bosque</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400">--</div>
+                    <p className="text-xs text-muted-foreground">Sin datos</p>
+                  </div>
+                  <WaterLevel percentage={0} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-purple-700">Sistema Total</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400">--</div>
+                    <p className="text-xs text-muted-foreground">Sin datos</p>
+                  </div>
+                  <WaterLevel percentage={0} />
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Main Chart */}
@@ -249,35 +313,39 @@ function HomeContent() {
             />
           )}
 
-          {!loading && !error && filteredData.length > 0 && selectedReservoirs.length > 0 && (
+          {!loading && !error && (
             <ChartErrorBoundary height={500} onRetry={() => refresh()}>
-              <UnifiedChart
-                data={filteredData}
-                showPercentage={showPercentage}
-                reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
-                chartType={chartType}
-                height={500}
-              />
+              {filteredData.length > 0 && selectedReservoirs.length > 0 ? (
+                <UnifiedChart
+                  data={filteredData}
+                  showPercentage={showPercentage}
+                  reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
+                  chartType={chartType}
+                  height={500}
+                />
+              ) : selectedReservoirs.length === 0 ? (
+                <EmptyChart 
+                  height={500}
+                  title="No hay embalses seleccionados"
+                  message="Selecciona al menos un embalse para visualizar los datos"
+                  icon="droplets"
+                />
+              ) : (
+                <EmptyChart 
+                  height={500}
+                  title="Sin datos disponibles"
+                  message="No hay datos para mostrar en el período seleccionado"
+                  icon="trending"
+                />
+              )}
             </ChartErrorBoundary>
-          )}
-
-          {!loading && !error && selectedReservoirs.length === 0 && (
-            <div className="flex justify-center items-center h-96">
-              <div className="text-center">
-                <Droplets className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">No hay embalses seleccionados</p>
-                <p className="text-sm text-muted-foreground">
-                  Selecciona al menos un embalse para visualizar los datos
-                </p>
-              </div>
-            </div>
           )}
         </CardContent>
       </Card>
 
 
       {/* Rainfall Analysis Section */}
-      {!loading && !error && filteredData.length > 0 && selectedReservoirs.length > 0 && (
+      {!loading && !error && (
         <div className="space-y-6">
           {/* Multi-Reservoir Rainfall Comparison */}
           <Card>
@@ -295,19 +363,34 @@ function HomeContent() {
                 <ChartSkeleton height={400} />
               ) : (
                 <ChartErrorBoundary height={400} onRetry={() => refresh()}>
-                  <MultiRainfallChart
-                    data={filteredData}
-                    reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
-                    height={400}
-                  />
+                  {filteredData.length > 0 && selectedReservoirs.length > 0 ? (
+                    <MultiRainfallChart
+                      data={filteredData}
+                      reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
+                      height={400}
+                    />
+                  ) : selectedReservoirs.length === 0 ? (
+                    <EmptyChart 
+                      height={400}
+                      title="No hay embalses seleccionados"
+                      message="Selecciona al menos un embalse para visualizar la precipitación"
+                      icon="droplets"
+                    />
+                  ) : (
+                    <EmptyChart 
+                      height={400}
+                      title="Sin datos de precipitación"
+                      message="No hay datos de precipitación para mostrar en el período seleccionado"
+                      icon="droplets"
+                    />
+                  )}
                 </ChartErrorBoundary>
               )}
             </CardContent>
           </Card>
 
           {/* Correlation Charts with Tabs */}
-          {selectedReservoirs.length > 0 && (
-            <Card>
+          <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <TrendingUp className="w-5 h-5" />
@@ -322,38 +405,53 @@ function HomeContent() {
                   <ChartSkeleton height={400} />
                 ) : (
                   <ChartErrorBoundary height={400} onRetry={() => refresh()}>
-                    <Tabs
-                      tabs={[
-                        {
-                          id: 'system_total',
-                          label: 'Sistema Total',
-                          content: (
-                            <RainfallCorrelationChart
-                              data={filteredData}
-                              reservoir="system_total"
-                              height={400}
-                            />
-                          )
-                        },
-                        ...selectedReservoirs.map(reservoir => ({
-                          id: reservoir,
-                          label: RESERVOIR_NAMES[reservoir as keyof typeof RESERVOIR_NAMES],
-                          content: (
-                            <RainfallCorrelationChart
-                              data={filteredData}
-                              reservoir={reservoir as 'valle_bravo' | 'villa_victoria' | 'el_bosque'}
-                              height={400}
-                            />
-                          )
-                        }))
-                      ]}
-                      defaultTab="system_total"
-                    />
+                    {filteredData.length > 0 && selectedReservoirs.length > 0 ? (
+                      <Tabs
+                        tabs={[
+                          {
+                            id: 'system_total',
+                            label: 'Sistema Total',
+                            content: (
+                              <RainfallCorrelationChart
+                                data={filteredData}
+                                reservoir="system_total"
+                                height={400}
+                              />
+                            )
+                          },
+                          ...selectedReservoirs.map(reservoir => ({
+                            id: reservoir,
+                            label: RESERVOIR_NAMES[reservoir as keyof typeof RESERVOIR_NAMES],
+                            content: (
+                              <RainfallCorrelationChart
+                                data={filteredData}
+                                reservoir={reservoir as 'valle_bravo' | 'villa_victoria' | 'el_bosque'}
+                                height={400}
+                              />
+                            )
+                          }))
+                        ]}
+                        defaultTab="system_total"
+                      />
+                    ) : selectedReservoirs.length === 0 ? (
+                      <EmptyChart 
+                        height={400}
+                        title="No hay embalses seleccionados"
+                        message="Selecciona al menos un embalse para visualizar la correlación"
+                        icon="chart"
+                      />
+                    ) : (
+                      <EmptyChart 
+                        height={400}
+                        title="Sin datos de correlación"
+                        message="No hay datos suficientes para mostrar la correlación en el período seleccionado"
+                        icon="chart"
+                      />
+                    )}
                   </ChartErrorBoundary>
                 )}
               </CardContent>
             </Card>
-          )}
         </div>
       )}
     </div>
