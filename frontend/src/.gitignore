@@ -1,0 +1,27 @@
+# Development files
+*.log
+*.tmp
+*.temp
+.DS_Store
+
+# IDE files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Component development
+*.stories.tsx
+*.test.tsx
+*.spec.tsx
+__tests__/
+__mocks__/
+
+# Temporary data files
+*.csv
+*.json.bak
+*.backup
+
+# Local configuration overrides
+local.config.ts
+dev.config.ts

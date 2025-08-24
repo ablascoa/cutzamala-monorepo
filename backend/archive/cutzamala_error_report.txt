@@ -1,0 +1,5 @@
+Errors found while processing PDFs:
+
+- Reporte_completo_de_abril_2021.pdf: No data extracted
+- Reporte_completo_de_marzo_2021.pdf: No data extracted
+- Reporte_completo_de_septiembre_de_2021.pdf: No data extracted

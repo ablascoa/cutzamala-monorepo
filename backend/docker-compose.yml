@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  cutzamala-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app
+      - ./src/cutzamala.db:/app/cutzamala.db
+    environment:
+      - LOG_LEVEL=debug
+      - DATABASE_PATH=/app/cutzamala.db
+      - CORS_ORIGINS=["*"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add nginx proxy for production-like setup
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - cutzamala-api
+    profiles:
+      - production-like
+    restart: unless-stopped

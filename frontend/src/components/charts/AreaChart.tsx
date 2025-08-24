@@ -1,0 +1,136 @@
+'use client';
+
+import { 
+  AreaChart as RechartsAreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Brush,
+  ReferenceLine
+} from 'recharts';
+import { formatNumber, formatDate, formatShortDate } from '@/lib/utils';
+import { CutzamalaReading } from '@/types';
+
+interface AreaChartProps {
+  data: CutzamalaReading[];
+  showPercentage: boolean;
+  reservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
+  height?: number;
+}
+
+const RESERVOIR_CONFIG = {
+  valle_bravo: {
+    name: 'Valle de Bravo',
+    color: '#3b82f6', // blue
+    fillOpacity: 0.6
+  },
+  villa_victoria: {
+    name: 'Villa Victoria',
+    color: '#ef4444', // red
+    fillOpacity: 0.6
+  },
+  el_bosque: {
+    name: 'El Bosque',
+    color: '#10b981', // green
+    fillOpacity: 0.6
+  }
+};
+
+export function AreaChart({ data, showPercentage, reservoirs, height = 400 }: AreaChartProps) {
+  const formatTooltipValue = (value: number) => {
+    return showPercentage 
+      ? `${formatNumber(value)}%` 
+      : `${formatNumber(value)} Mm³`;
+  };
+
+  const formatTickValue = (value: number) => {
+    return showPercentage 
+      ? `${Math.round(value)}%` 
+      : `${Math.round(value)}`;
+  };
+
+  const getYAxisDomain = () => {
+    if (showPercentage) {
+      return [0, 100];
+    }
+    return ['dataMin - 5', 'dataMax + 5'];
+  };
+
+  return (
+    <div style={{ width: '100%', height }}>
+      <ResponsiveContainer>
+        <RechartsAreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          
+          <XAxis 
+            dataKey="date"
+            tickFormatter={(value) => formatShortDate(value)}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+            interval="preserveStartEnd"
+          />
+          
+          <YAxis 
+            tickFormatter={formatTickValue}
+            domain={getYAxisDomain()}
+            label={{ 
+              value: showPercentage ? 'Porcentaje (%)' : 'Almacenamiento (Mm³)', 
+              angle: -90, 
+              position: 'insideLeft' 
+            }}
+          />
+          
+          <Tooltip 
+            labelFormatter={(value) => `Fecha: ${formatDate(value)}`}
+            formatter={(value: number, name: string) => [
+              formatTooltipValue(value),
+              RESERVOIR_CONFIG[name as keyof typeof RESERVOIR_CONFIG]?.name || name
+            ]}
+            contentStyle={{
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px'
+            }}
+          />
+          
+          <Legend />
+
+          {/* Reference lines for percentage view */}
+          {showPercentage && (
+            <>
+              <ReferenceLine y={25} stroke="#f59e0b" strokeDasharray="5 5" label="Crítico (25%)" />
+              <ReferenceLine y={50} stroke="#f97316" strokeDasharray="5 5" label="Bajo (50%)" />
+            </>
+          )}
+
+          {reservoirs.map((reservoir) => (
+            <Area
+              key={reservoir}
+              type="monotone"
+              dataKey={showPercentage 
+                ? `reservoirs.${reservoir}.percentage` 
+                : `reservoirs.${reservoir}.storage_mm3`
+              }
+              stackId="1"
+              stroke={RESERVOIR_CONFIG[reservoir].color}
+              fill={RESERVOIR_CONFIG[reservoir].color}
+              fillOpacity={RESERVOIR_CONFIG[reservoir].fillOpacity}
+              name={reservoir}
+            />
+          ))}
+
+          <Brush 
+            dataKey="date" 
+            height={30}
+            tickFormatter={(value) => formatShortDate(value)}
+          />
+        </RechartsAreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
