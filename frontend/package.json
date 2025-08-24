@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@cutzamala/shared": "workspace:*",
+    "@cutzamala/shared": "file:../shared",
     "@types/html2canvas": "^0.5.35",
     "@types/react-datepicker": "^6.2.0",
     "clsx": "^2.1.1",
