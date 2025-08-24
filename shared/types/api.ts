@@ -62,6 +62,7 @@ export interface CutzamalaResponse {
 export type Granularity = 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type ReservoirType = 'valle_bravo' | 'villa_victoria' | 'el_bosque' | 'all';
 export type ResponseFormat = 'json' | 'csv';
+export type SortOrder = 'asc' | 'desc';
 
 export interface CutzamalaQueryParams {
   start_date?: string;
@@ -69,6 +70,7 @@ export interface CutzamalaQueryParams {
   granularity?: Granularity;
   reservoirs?: string;
   format?: ResponseFormat;
+  order?: SortOrder;
   limit?: number;
   offset?: number;
 }

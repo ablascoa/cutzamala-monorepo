@@ -51,6 +51,8 @@ export function RainfallCorrelationChart({
 }: RainfallCorrelationChartProps) {
   const config = RESERVOIR_CONFIG[reservoir];
 
+  // Backend provides data in correct ascending order
+
   // Transform data to include both storage percentage and rainfall
   const chartData = data.map(reading => {
     if (reservoir === 'system_total') {

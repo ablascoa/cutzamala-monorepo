@@ -53,6 +53,7 @@ class DatabaseDataService:
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
         reservoirs: Optional[List[str]] = None,
+        order: str = "desc",
         limit: Optional[int] = None,
         offset: Optional[int] = 0
     ) -> List[Dict]:
@@ -91,8 +92,9 @@ class DatabaseDataService:
             if where_conditions:
                 query_parts.append("WHERE " + " AND ".join(where_conditions))
             
-            # Add ordering
-            query_parts.append("ORDER BY date DESC")
+            # Add ordering (validate order parameter for security)
+            order_direction = "DESC" if order.lower() == "desc" else "ASC"
+            query_parts.append(f"ORDER BY date {order_direction}")
             
             # Add pagination
             if limit:

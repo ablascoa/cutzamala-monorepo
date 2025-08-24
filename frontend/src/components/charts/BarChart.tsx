@@ -37,6 +37,8 @@ const RESERVOIR_CONFIG = {
 };
 
 export function BarChart({ data, showPercentage, reservoirs, height = 400 }: BarChartProps) {
+  // Backend provides data in correct ascending order
+
   const formatTooltipValue = (value: number) => {
     return showPercentage 
       ? `${formatNumber(value)}%` 

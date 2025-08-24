@@ -10,7 +10,7 @@ class DatabaseAggregationService:
     """Aggregation service that works with database data format"""
     
     @staticmethod
-    def aggregate_daily(data: List[Dict]) -> List[Dict]:
+    def aggregate_daily(data: List[Dict], order: str = "desc") -> List[Dict]:
         """Convert database records to API response format"""
         records = []
         
@@ -49,7 +49,7 @@ class DatabaseAggregationService:
         return records
     
     @staticmethod
-    def aggregate_weekly(data: List[Dict]) -> List[Dict]:
+    def aggregate_weekly(data: List[Dict], order: str = "desc") -> List[Dict]:
         """Aggregate daily data into weekly periods"""
         if not data:
             return []
@@ -125,11 +125,11 @@ class DatabaseAggregationService:
             weekly_records.append(record)
         
         # Sort by date descending
-        weekly_records.sort(key=lambda x: x['date'], reverse=True)
+        weekly_records.sort(key=lambda x: x['date'], reverse=(order.lower() == "desc"))
         return weekly_records
     
     @staticmethod
-    def aggregate_monthly(data: List[Dict]) -> List[Dict]:
+    def aggregate_monthly(data: List[Dict], order: str = "desc") -> List[Dict]:
         """Aggregate daily data into monthly periods"""
         if not data:
             return []
@@ -198,11 +198,11 @@ class DatabaseAggregationService:
             monthly_records.append(record)
         
         # Sort by date descending
-        monthly_records.sort(key=lambda x: x['date'], reverse=True)
+        monthly_records.sort(key=lambda x: x['date'], reverse=(order.lower() == "desc"))
         return monthly_records
     
     @staticmethod
-    def aggregate_yearly(data: List[Dict]) -> List[Dict]:
+    def aggregate_yearly(data: List[Dict], order: str = "desc") -> List[Dict]:
         """Aggregate daily data into yearly periods"""
         if not data:
             return []
@@ -271,7 +271,7 @@ class DatabaseAggregationService:
             yearly_records.append(record)
         
         # Sort by year descending
-        yearly_records.sort(key=lambda x: int(x['year']), reverse=True)
+        yearly_records.sort(key=lambda x: int(x['year']), reverse=(order.lower() == "desc"))
         return yearly_records
 
 

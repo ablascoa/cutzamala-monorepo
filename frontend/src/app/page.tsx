@@ -9,6 +9,7 @@ import { UnifiedChart } from '@/components/charts/UnifiedChart';
 import { MultiRainfallChart } from '@/components/charts/MultiRainfallChart';
 import { RainfallCorrelationChart } from '@/components/charts/RainfallCorrelationChart';
 import { EmptyChart } from '@/components/charts/EmptyChart';
+import { DateRangePicker } from '@/components/controls/DateRangePicker';
 import { useDateRangeData } from '@/hooks/useCutzamalaData';
 import { useUrlState } from '@/hooks/useUrlState';
 import { formatNumber, formatDate } from '@/lib/utils';
@@ -27,6 +28,9 @@ function HomeContent() {
     state: { startDate, endDate, selectedReservoirs, showPercentage, granularity, chartType },
     setShowPercentage,
     setGranularity,
+    setStartDate,
+    setEndDate,
+    updateState,
     resetState
   } = useUrlState();
 
@@ -250,6 +254,17 @@ function HomeContent() {
           {/* Chart Controls */}
           <div className="mb-6 pb-6 border-b border-gray-200">
             <div className="flex flex-wrap items-center gap-6">
+              {/* Date Range Picker */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Período:</span>
+                <DateRangePicker
+                  startDate={startDate}
+                  endDate={endDate}
+                  onDateChange={(start, end) => updateState({ startDate: start, endDate: end })}
+                  className="flex-shrink-0"
+                />
+              </div>
+
               {/* Data Type Toggle */}
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-gray-700">Mostrar:</span>
@@ -268,7 +283,7 @@ function HomeContent() {
 
               {/* Granularity Selector */}
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Período:</span>
+                <span className="text-sm font-medium text-gray-700">Granularidad:</span>
                 <div className="flex rounded-lg border border-gray-200 overflow-hidden">
                   {[
                     { value: 'daily' as const, label: 'Diario' },

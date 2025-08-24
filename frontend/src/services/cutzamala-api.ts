@@ -53,6 +53,7 @@ export class CutzamalaApiService {
     if (params?.granularity) queryParams.granularity = params.granularity;
     if (params?.reservoirs) queryParams.reservoirs = params.reservoirs;
     if (params?.format) queryParams.format = params.format;
+    if (params?.order) queryParams.order = params.order;
     if (params?.limit) queryParams.limit = params.limit;
     if (params?.offset) queryParams.offset = params.offset;
 
@@ -103,6 +104,7 @@ export class CutzamalaApiService {
       start_date: startDate,
       end_date: endDate,
       granularity,
+      order: 'asc',
     });
   }
 
@@ -120,6 +122,7 @@ export class CutzamalaApiService {
     return this.getCutzamalaReadings({
       ...params,
       reservoirs: reservoirs.join(','),
+      order: params?.order || 'asc',
     });
   }
 
@@ -141,6 +144,7 @@ export class CutzamalaApiService {
       start_date: startDate.toISOString().split('T')[0],
       end_date: endDate.toISOString().split('T')[0],
       granularity: 'daily',
+      order: 'asc',
     });
   }
 
@@ -160,6 +164,7 @@ export class CutzamalaApiService {
       start_date: startDate,
       end_date: endDate,
       granularity,
+      order: 'asc',
     });
   }
 }

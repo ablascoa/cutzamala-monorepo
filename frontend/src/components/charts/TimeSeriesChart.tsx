@@ -48,7 +48,7 @@ export function TimeSeriesChart({
   showBrush = true,
   showReferenceLines = true,
 }: TimeSeriesChartProps) {
-  // Transform data for Recharts
+  // Transform data for Recharts (backend provides data in correct order)
   const chartData = data.map((reading) => ({
     date: reading.date,
     formattedDate: format(new Date(reading.date), 'MMM dd, yyyy'),

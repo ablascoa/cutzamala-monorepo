@@ -7,7 +7,7 @@ from slowapi.util import get_remote_address
 
 limiter = Limiter(key_func=get_remote_address)
 
-from ..models.request import CutzamalaQueryParams, GranularityEnum, FormatEnum
+from ..models.request import CutzamalaQueryParams, GranularityEnum, FormatEnum, OrderEnum
 from ..models.response import CutzamalaResponse, ErrorResponse
 from ..services.database_service import DatabaseDataService
 from ..services.database_aggregation_service import DatabaseAggregationService
@@ -31,6 +31,7 @@ async def get_cutzamala_readings(
     reservoirs: Optional[str] = Query(None, description="Comma-separated list of reservoir names"),
     granularity: GranularityEnum = Query(GranularityEnum.daily, description="Data aggregation granularity"),
     format: FormatEnum = Query(FormatEnum.json, description="Response format"),
+    order: OrderEnum = Query(OrderEnum.desc, description="Sort order for results by date"),
     limit: Optional[int] = Query(1000, ge=1, le=10000, description="Maximum number of records to return"),
     offset: Optional[int] = Query(0, ge=0, description="Number of records to skip")
 ):
@@ -58,6 +59,7 @@ async def get_cutzamala_readings(
             start_date=start_date,
             end_date=end_date,
             reservoirs=reservoir_list,
+            order=order.value,
             limit=limit,
             offset=offset
         )
@@ -66,15 +68,15 @@ async def get_cutzamala_readings(
             records = []
         else:
             if granularity == GranularityEnum.daily:
-                records = DatabaseAggregationService.aggregate_daily(filtered_data)
+                records = DatabaseAggregationService.aggregate_daily(filtered_data, order.value)
             elif granularity == GranularityEnum.weekly:
-                records = DatabaseAggregationService.aggregate_weekly(filtered_data)
+                records = DatabaseAggregationService.aggregate_weekly(filtered_data, order.value)
             elif granularity == GranularityEnum.monthly:
-                records = DatabaseAggregationService.aggregate_monthly(filtered_data)
+                records = DatabaseAggregationService.aggregate_monthly(filtered_data, order.value)
             elif granularity == GranularityEnum.yearly:
-                records = DatabaseAggregationService.aggregate_yearly(filtered_data)
+                records = DatabaseAggregationService.aggregate_yearly(filtered_data, order.value)
             else:
-                records = DatabaseAggregationService.aggregate_daily(filtered_data)
+                records = DatabaseAggregationService.aggregate_daily(filtered_data, order.value)
         
         paginated_records = records
         

@@ -195,5 +195,10 @@ curl "http://localhost:8000/api/v1/health"
 
 **Ready for Phase 2**: Frontend configuration to switch from mock to real API.
 
+## Data Coverage
+
+**Database Range**: 2016-05-01 to present  
+**Total Coverage**: 8+ years of historical water storage data
+
 ---
 *Last reviewed: 2025-08-24*

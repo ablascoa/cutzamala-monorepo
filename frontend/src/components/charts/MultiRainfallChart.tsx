@@ -40,6 +40,8 @@ export function MultiRainfallChart({
   reservoirs, 
   height = 400 
 }: MultiRainfallChartProps) {
+  // Backend provides data in correct ascending order
+  
   // Transform data to include rainfall data for all reservoirs
   const chartData = data.map(reading => ({
     ...reading,
