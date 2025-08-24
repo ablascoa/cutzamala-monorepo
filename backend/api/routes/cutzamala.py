@@ -13,6 +13,7 @@ from ..services.database_service import DatabaseDataService
 from ..services.database_aggregation_service import DatabaseAggregationService
 from ..utils.csv_utils import create_csv_response_content
 from ..utils.error_handlers import CutzamalaAPIException
+from ..utils.response_transformer import create_frontend_response
 
 router = APIRouter(prefix="/api/v1", tags=["Cutzamala Water Storage"])
 
@@ -40,6 +41,13 @@ async def get_cutzamala_readings(
         
         # Get total count first for metadata
         total_records = data_service.get_record_count(
+            start_date=start_date,
+            end_date=end_date,
+            reservoirs=reservoir_list
+        )
+        
+        # Get filtered data count (before aggregation) 
+        filtered_count = data_service.get_record_count(
             start_date=start_date,
             end_date=end_date,
             reservoirs=reservoir_list
@@ -77,14 +85,18 @@ async def get_cutzamala_readings(
             )
             return Response(content=csv_content, media_type="text/csv", headers=headers)
         
-        metadata = {
-            "total_records": total_records,
-            "returned_records": len(paginated_records),
-            "offset": offset,
-            "limit": limit
-        }
-        
-        response = CutzamalaResponse(data=paginated_records, metadata=metadata)
+        # Create frontend-compatible response using the transformer
+        response = create_frontend_response(
+            records=paginated_records,
+            total_records=total_records,
+            filtered_records=filtered_count,
+            granularity=granularity.value,
+            start_date=start_date.isoformat() if start_date else None,
+            end_date=end_date.isoformat() if end_date else None,
+            reservoirs_included=reservoir_list,
+            limit=limit,
+            offset=offset
+        )
         return response
         
     except CutzamalaAPIException:

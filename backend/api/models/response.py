@@ -10,7 +10,7 @@ class ReservoirReading(BaseModel):
 
 
 class SystemTotals(BaseModel):
-    total_mm3: int
+    total_mm3: float  # Changed from int to float to match frontend expectations
     total_percentage: float
 
 
@@ -25,9 +25,30 @@ class ReadingRecord(BaseModel):
     source_pdf: str
 
 
+class DateRange(BaseModel):
+    start: str
+    end: str
+
+
+class CutzamalaMetadata(BaseModel):
+    total_records: int
+    filtered_records: int
+    granularity: str
+    date_range: DateRange
+    reservoirs_included: List[str]
+
+
+class CutzamalaPagination(BaseModel):
+    limit: int
+    offset: int
+    has_next: bool
+    has_previous: bool
+
+
 class CutzamalaResponse(BaseModel):
-    data: List[ReadingRecord]
-    metadata: Dict[str, int]
+    readings: List[ReadingRecord]  # Changed from 'data' to 'readings'
+    metadata: CutzamalaMetadata
+    pagination: CutzamalaPagination
 
 
 class ErrorResponse(BaseModel):
