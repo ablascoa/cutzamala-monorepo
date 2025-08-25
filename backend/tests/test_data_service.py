@@ -1,7 +1,7 @@
 import pytest
 from datetime import date
-from api.services.database_service import DatabaseDataService
-from api.services.database_aggregation_service import DatabaseAggregationService
+from src.api.services.database_service import DatabaseDataService
+from src.api.services.database_aggregation_service import DatabaseAggregationService
 
 
 class TestDatabaseService:

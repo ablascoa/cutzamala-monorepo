@@ -1,0 +1,71 @@
+# Git
+.git
+.gitignore
+README.md
+RAILWAY_DEPLOYMENT.md
+SETUP_COMPLETE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.tox
+.coverage
+.pytest_cache/
+.mypy_cache
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development files
+.env.local
+.env.development
+*.log
+
+# Docker
+Dockerfile.dev
+docker-compose.yml
+docker-compose.dev.yml
+
+# Testing and development
+tests/
+test_*.py
+*_test.py
+
+# Documentation
+docs/
+*.md
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Database files (for development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Large directories that aren't needed in production
+node_modules/
+.npm/

@@ -1,8 +1,8 @@
 import pytest
 import asyncio
 from fastapi.testclient import TestClient
-from api.app import app
-from api.services.database_service import DatabaseDataService
+from src.api.app import app
+from src.api.services.database_service import DatabaseDataService
 
 
 @pytest.fixture(scope="session")

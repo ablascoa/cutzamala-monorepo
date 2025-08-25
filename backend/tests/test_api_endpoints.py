@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from api.app import app
+from src.api.app import app
 
 class TestCutzamalaAPI:
     """Test cases for the Cutzamala API endpoints."""
