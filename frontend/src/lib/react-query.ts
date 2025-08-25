@@ -13,8 +13,8 @@ const queryConfig: DefaultOptions = {
     retry: 3,
     // Don't refetch on window focus by default (can be overridden per query)
     refetchOnWindowFocus: false,
-    // Don't refetch on mount if data exists and is not stale
-    refetchOnMount: false,
+    // Refetch on mount if data is potentially stale
+    refetchOnMount: 'always',
     // Refetch on reconnect
     refetchOnReconnect: true,
   },
@@ -31,7 +31,7 @@ export const queryClient = new QueryClient({
 
 // Make queryClient available globally for debugging in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).queryClient = queryClient;
+  (window as unknown as Record<string, unknown>).queryClient = queryClient;
 }
 
 // React Query keys for consistent cache management

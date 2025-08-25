@@ -42,7 +42,7 @@ export function ErrorState({
         {onRetry && (
           <Button
             onClick={onRetry}
-            variant="outline"
+            variant="outlined"
             className="flex items-center space-x-2 mx-auto"
           >
             <RefreshCw className="w-4 h-4" />
@@ -78,7 +78,7 @@ export function CompactErrorState({ error, onRetry }: { error: Error; onRetry?: 
       {onRetry && (
         <Button
           size="sm"
-          variant="outline"
+          variant="outlined"
           onClick={onRetry}
           className="flex items-center space-x-1"
         >

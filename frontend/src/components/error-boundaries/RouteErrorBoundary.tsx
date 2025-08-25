@@ -185,7 +185,7 @@ function RouteErrorFallback({ error, errorId, resetError }: RouteErrorFallbackPr
             <div className="grid grid-cols-2 gap-3">
               <Button 
                 onClick={handleReload} 
-                variant="outline"
+                variant="outlined"
                 className="w-full"
               >
                 Recargar Página
@@ -193,7 +193,7 @@ function RouteErrorFallback({ error, errorId, resetError }: RouteErrorFallbackPr
               
               <Button 
                 onClick={handleGoHome} 
-                variant="outline"
+                variant="outlined"
                 className="w-full"
               >
                 <Home className="mr-2 h-4 w-4" />

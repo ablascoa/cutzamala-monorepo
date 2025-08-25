@@ -1,8 +1,9 @@
 'use client';
 
 import {
-  LineChart,
+  ComposedChart,
   Line,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -19,6 +20,7 @@ interface TimeSeriesChartProps {
   data: CutzamalaReading[];
   showPercentage?: boolean;
   showStorage?: boolean;
+  showPrecipitation?: boolean;
   reservoirs?: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
   visibleLines?: string[];
   height?: number;
@@ -34,6 +36,12 @@ const RESERVOIR_COLORS = {
   system: '#7c3aed', // purple
 };
 
+const PRECIPITATION_COLORS = {
+  valle_bravo: '#93c5fd', // light blue
+  villa_victoria: '#fca5a5', // light red  
+  el_bosque: '#86efac', // light green
+};
+
 const RESERVOIR_NAMES = {
   valle_bravo: 'Valle de Bravo',
   villa_victoria: 'Villa Victoria',
@@ -43,6 +51,7 @@ const RESERVOIR_NAMES = {
 export function TimeSeriesChart({
   data,
   showPercentage = true,
+  showPrecipitation = false,
   reservoirs = ['valle_bravo', 'villa_victoria', 'el_bosque'],
   visibleLines = ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   height = 400,
@@ -64,6 +73,10 @@ export function TimeSeriesChart({
     villa_victoria_storage: reading.reservoirs.villa_victoria.storage_mm3,
     el_bosque_storage: reading.reservoirs.el_bosque.storage_mm3,
     system_storage: reading.system_totals.total_mm3,
+    // Precipitation data (in mm)
+    valle_bravo_rainfall: reading.reservoirs.valle_bravo.rainfall,
+    villa_victoria_rainfall: reading.reservoirs.villa_victoria.rainfall,
+    el_bosque_rainfall: reading.reservoirs.el_bosque.rainfall,
   }));
 
   // Custom tooltip component
@@ -90,7 +103,7 @@ export function TimeSeriesChart({
               />
               <span className="text-sm text-gray-700">
                 {entry.name}: {entry.value?.toFixed(1)}
-                {showPercentage ? '%' : ' Mm³'}
+                {entry.name.includes('Lluvia') ? ' mm' : (showPercentage ? '%' : ' Mm³')}
               </span>
             </div>
           ))}
@@ -106,7 +119,7 @@ export function TimeSeriesChart({
   return (
     <div className={className}>
       <ResponsiveContainer width="100%" height={height}>
-        <LineChart
+        <ComposedChart
           data={chartData}
           margin={{
             top: 5,
@@ -136,11 +149,22 @@ export function TimeSeriesChart({
             stroke="#6b7280"
           />
           <YAxis
+            yAxisId="left"
             tick={{ fontSize: 12 }}
             label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }}
             stroke="#6b7280"
             domain={showPercentage ? [0, 100] : ['dataMin - 10', 'dataMax + 10']}
           />
+          {showPrecipitation && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 12 }}
+              label={{ value: 'Precipitación (mm)', angle: 90, position: 'insideRight' }}
+              stroke="#94a3b8"
+              domain={[0, 'dataMax + 5']}
+            />
+          )}
           <Tooltip content={<CustomTooltip />} />
           <Legend
             wrapperStyle={{ fontSize: '14px' }}
@@ -149,6 +173,7 @@ export function TimeSeriesChart({
           
           {reservoirs.includes('valle_bravo') && visibleLines.includes('valle_bravo') && (
             <Line
+              yAxisId="left"
               type="monotone"
               dataKey={`valle_bravo${dataKeySuffix}`}
               stroke={RESERVOIR_COLORS.valle_bravo}
@@ -161,6 +186,7 @@ export function TimeSeriesChart({
           
           {reservoirs.includes('villa_victoria') && visibleLines.includes('villa_victoria') && (
             <Line
+              yAxisId="left"
               type="monotone"
               dataKey={`villa_victoria${dataKeySuffix}`}
               stroke={RESERVOIR_COLORS.villa_victoria}
@@ -173,6 +199,7 @@ export function TimeSeriesChart({
           
           {reservoirs.includes('el_bosque') && visibleLines.includes('el_bosque') && (
             <Line
+              yAxisId="left"
               type="monotone"
               dataKey={`el_bosque${dataKeySuffix}`}
               stroke={RESERVOIR_COLORS.el_bosque}
@@ -186,6 +213,7 @@ export function TimeSeriesChart({
           {/* System total line (optional, shown when all reservoirs are selected) */}
           {reservoirs.length === 3 && visibleLines.includes('system_total') && (
             <Line
+              yAxisId="left"
               type="monotone"
               dataKey={`system${dataKeySuffix}`}
               stroke={RESERVOIR_COLORS.system}
@@ -197,16 +225,49 @@ export function TimeSeriesChart({
             />
           )}
 
+          {/* Precipitation bars */}
+          {showPrecipitation && reservoirs.includes('valle_bravo') && visibleLines.includes('valle_bravo') && (
+            <Bar
+              yAxisId="right"
+              dataKey="valle_bravo_rainfall"
+              fill={PRECIPITATION_COLORS.valle_bravo}
+              opacity={0.6}
+              name="Valle de Bravo (Lluvia)"
+            />
+          )}
+          
+          {showPrecipitation && reservoirs.includes('villa_victoria') && visibleLines.includes('villa_victoria') && (
+            <Bar
+              yAxisId="right"
+              dataKey="villa_victoria_rainfall"
+              fill={PRECIPITATION_COLORS.villa_victoria}
+              opacity={0.6}
+              name="Villa Victoria (Lluvia)"
+            />
+          )}
+          
+          {showPrecipitation && reservoirs.includes('el_bosque') && visibleLines.includes('el_bosque') && (
+            <Bar
+              yAxisId="right"
+              dataKey="el_bosque_rainfall"
+              fill={PRECIPITATION_COLORS.el_bosque}
+              opacity={0.6}
+              name="El Bosque (Lluvia)"
+            />
+          )}
+
           {/* Reference lines for critical levels (only for percentage view) */}
           {showPercentage && showReferenceLines && (
             <>
               <ReferenceLine 
+                yAxisId="left"
                 y={25} 
                 stroke="#ef4444" 
                 strokeDasharray="8 8" 
                 label={{ value: "Nivel Crítico (25%)" }}
               />
               <ReferenceLine 
+                yAxisId="left"
                 y={50} 
                 stroke="#f59e0b" 
                 strokeDasharray="4 4" 
@@ -215,7 +276,7 @@ export function TimeSeriesChart({
             </>
           )}
 
-        </LineChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

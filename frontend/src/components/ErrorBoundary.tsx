@@ -86,7 +86,7 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
         <Button 
           onClick={resetError} 
           className="w-full"
-          variant="outline"
+          variant="outlined"
         >
           <RefreshCw className="mr-2 h-4 w-4" />
           Reintentar

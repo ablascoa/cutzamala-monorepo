@@ -100,9 +100,10 @@ export function useDateRangeData(
       
       return response.data;
     },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    refetchInterval: 15 * 60 * 1000, // 15 minutes
+    staleTime: 30 * 1000, // 30 seconds - shorter to ensure fresh data when granularity changes
+    refetchInterval: false, // Don't auto-refetch, only on user action
     enabled: Boolean(startDate && endDate), // Only run query if we have both dates
+    refetchOnMount: 'always', // Always refetch when component mounts with new params
   });
 
   const refresh = () => {

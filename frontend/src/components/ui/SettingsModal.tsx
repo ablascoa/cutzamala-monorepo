@@ -219,7 +219,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {/* Actions */}
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <Button
-              variant="outline"
+              variant="outlined"
               onClick={handleReset}
               className="flex items-center space-x-2"
             >
@@ -228,7 +228,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </Button>
 
             <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outlined" onClick={onClose}>
                 Cancelar
               </Button>
               <Button onClick={handleSave}>

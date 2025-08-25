@@ -53,7 +53,6 @@ export class CutzamalaApiService {
     if (params?.granularity) queryParams.granularity = params.granularity;
     if (params?.reservoirs) queryParams.reservoirs = params.reservoirs;
     if (params?.format) queryParams.format = params.format;
-    if (params?.order) queryParams.order = params.order;
     if (params?.limit) queryParams.limit = params.limit;
     if (params?.offset) queryParams.offset = params.offset;
 
@@ -104,7 +103,6 @@ export class CutzamalaApiService {
       start_date: startDate,
       end_date: endDate,
       granularity,
-      order: 'asc',
       limit: 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
@@ -123,7 +121,6 @@ export class CutzamalaApiService {
     return this.getCutzamalaReadings({
       ...params,
       reservoirs: reservoirs.join(','),
-      order: params?.order || 'asc',
       limit: params?.limit || 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
@@ -146,7 +143,6 @@ export class CutzamalaApiService {
       start_date: startDate.toISOString().split('T')[0],
       end_date: endDate.toISOString().split('T')[0],
       granularity: 'daily',
-      order: 'asc',
     });
   }
 
@@ -166,7 +162,6 @@ export class CutzamalaApiService {
       start_date: startDate,
       end_date: endDate,
       granularity,
-      order: 'asc',
       limit: 10000, // Use maximum limit to ensure we get all data for chart display
     });
   }
@@ -177,7 +172,7 @@ export const cutzamalaApi = new CutzamalaApiService();
 
 // Global testing methods for development
 if (typeof window !== 'undefined' && env.enableDebugMode) {
-  // @ts-ignore - Global testing utilities
+  // @ts-expect-error - Global testing utilities
   window.testEmptyStates = {
     enable: () => {
       if (env.useMockData) {
@@ -195,11 +190,11 @@ if (typeof window !== 'undefined' && env.enableDebugMode) {
     }
   };
 
-  // @ts-ignore - Global cache utilities
+  // @ts-expect-error - Global cache utilities
   window.clearApiCache = () => {
     // Clear React Query cache
-    if (typeof window !== 'undefined' && (window as any).queryClient) {
-      (window as any).queryClient.clear();
+    if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>).queryClient) {
+      ((window as unknown as Record<string, unknown>).queryClient as { clear: () => void }).clear();
       console.log('✅ React Query cache cleared');
     }
     
@@ -207,7 +202,7 @@ if (typeof window !== 'undefined' && env.enableDebugMode) {
     window.location.reload();
   };
 
-  // @ts-ignore - Global debug utilities
+  // @ts-expect-error - Global debug utilities
   window.debugApiConfig = () => {
     console.log('🔧 API Configuration:');
     console.log('  - Mock data enabled:', env.useMockData);
@@ -217,7 +212,7 @@ if (typeof window !== 'undefined' && env.enableDebugMode) {
     console.log('  - Fallback behavior: ', env.useMockData ? 'Will use mock data on errors' : 'Will show error states on failures');
   };
 
-  // @ts-ignore - Global testing utilities
+  // @ts-expect-error - Global testing utilities
   window.testApiFailure = () => {
     console.log('🧪 Testing API failure behavior...');
     console.log('Current config:');

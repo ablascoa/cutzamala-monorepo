@@ -32,7 +32,7 @@ export function ComparisonMode({
           Modo Comparación
         </label>
         <Button
-          variant={isActive ? "default" : "outline"}
+          variant={isActive ? "filled" : "outlined"}
           size="sm"
           onClick={() => onToggle(!isActive)}
           className="flex items-center space-x-2"

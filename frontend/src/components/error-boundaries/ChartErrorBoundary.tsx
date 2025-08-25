@@ -97,7 +97,7 @@ function ChartErrorFallback({ error, height = 400, onRetry }: ChartErrorFallback
           </details>
         )}
 
-        <Button onClick={onRetry} variant="outline" size="sm">
+        <Button onClick={onRetry} variant="outlined" size="sm">
           <RefreshCw className="mr-2 h-4 w-4" />
           Reintentar Gráfico
         </Button>

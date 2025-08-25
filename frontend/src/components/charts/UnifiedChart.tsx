@@ -10,6 +10,7 @@ import { ChartType } from '@/components/controls/ChartTypeSelector';
 interface UnifiedChartProps {
   data: CutzamalaReading[];
   showPercentage: boolean;
+  showPrecipitation?: boolean;
   reservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
   visibleLines?: string[];
   chartType: ChartType;
@@ -20,6 +21,7 @@ interface UnifiedChartProps {
 export function UnifiedChart({
   data,
   showPercentage,
+  showPrecipitation = false,
   reservoirs,
   visibleLines = ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   chartType,
@@ -63,6 +65,7 @@ export function UnifiedChart({
         <AreaChart
           data={data}
           showPercentage={showPercentage}
+          showPrecipitation={showPrecipitation}
           reservoirs={reservoirs}
           height={height}
           granularity={granularity}
@@ -73,6 +76,7 @@ export function UnifiedChart({
         <BarChart
           data={data}
           showPercentage={showPercentage}
+          showPrecipitation={showPrecipitation}
           reservoirs={reservoirs}
           height={height}
           granularity={granularity}
@@ -84,6 +88,7 @@ export function UnifiedChart({
         <TimeSeriesChart
           data={data}
           showPercentage={showPercentage}
+          showPrecipitation={showPrecipitation}
           reservoirs={reservoirs}
           visibleLines={visibleLines}
           height={height}

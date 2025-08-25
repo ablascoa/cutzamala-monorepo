@@ -12,23 +12,17 @@ import { ReservoirSelector } from '@/components/controls/ReservoirSelector';
 import { useDateRangeData } from '@/hooks/useCutzamalaData';
 import { useUrlState } from '@/hooks/useUrlState';
 import { formatNumber, formatDate } from '@/lib/utils';
-import { TrendingUp, RotateCcw } from 'lucide-react';
+import { TrendingUp, RotateCcw, Cloud } from 'lucide-react';
 import { ChartErrorBoundary } from '@/components/error-boundaries';
 
-const RESERVOIR_NAMES = {
-  valle_bravo: 'Valle de Bravo',
-  villa_victoria: 'Villa Victoria',
-  el_bosque: 'El Bosque'
-} as const;
 
 function HomeContent() {
   const {
-    state: { startDate, endDate, selectedReservoirs, visibleLines, showPercentage, granularity, chartType },
+    state: { startDate, endDate, selectedReservoirs, visibleLines, showPercentage, showPrecipitation, granularity, chartType },
     setShowPercentage,
+    setShowPrecipitation,
     setGranularity,
     setVisibleLines,
-    setStartDate,
-    setEndDate,
     updateState,
     resetState
   } = useUrlState();
@@ -287,6 +281,22 @@ function HomeContent() {
                 </button>
               </div>
 
+              {/* Precipitation Toggle */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">Precipitación:</span>
+                <button
+                  onClick={() => setShowPrecipitation(!showPrecipitation)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${
+                    showPrecipitation 
+                      ? 'bg-sky-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Cloud className="w-4 h-4" />
+                  <span>{showPrecipitation ? 'Mostrar' : 'Ocultar'}</span>
+                </button>
+              </div>
+
               {/* Granularity Selector */}
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-gray-700">Granularidad:</span>
@@ -347,6 +357,7 @@ function HomeContent() {
                 <UnifiedChart
                   data={filteredData}
                   showPercentage={showPercentage}
+                  showPrecipitation={showPrecipitation}
                   reservoirs={selectedReservoirs as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]}
                   visibleLines={visibleLines}
                   chartType={chartType}

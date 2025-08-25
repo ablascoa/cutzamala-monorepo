@@ -118,7 +118,7 @@ function DataErrorFallback({ error, title = 'Error cargando datos', onRetry }: D
           </details>
         )}
         
-        <Button onClick={onRetry} variant="outline" size="sm">
+        <Button onClick={onRetry} variant="outlined" size="sm">
           <RefreshCw className="mr-2 h-4 w-4" />
           Reintentar
         </Button>

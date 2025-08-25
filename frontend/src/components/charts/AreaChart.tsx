@@ -1,8 +1,9 @@
 'use client';
 
 import { 
-  AreaChart as RechartsAreaChart,
+  ComposedChart,
   Area,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,6 +19,7 @@ import { CutzamalaReading } from '@/types';
 interface AreaChartProps {
   data: CutzamalaReading[];
   showPercentage: boolean;
+  showPrecipitation?: boolean;
   reservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
   height?: number;
   granularity?: string;
@@ -41,8 +43,33 @@ const RESERVOIR_CONFIG = {
   }
 };
 
-export function AreaChart({ data, showPercentage, reservoirs, height = 400, granularity = 'daily' }: AreaChartProps) {
-  // Backend provides data in correct ascending order
+const PRECIPITATION_COLORS = {
+  valle_bravo: '#93c5fd', // light blue
+  villa_victoria: '#fca5a5', // light red  
+  el_bosque: '#86efac', // light green
+};
+
+export function AreaChart({ data, showPercentage, showPrecipitation = false, reservoirs, height = 400, granularity = 'daily' }: AreaChartProps) {
+  // Transform data for chart (backend provides data in correct ascending order)
+  const chartData = data.map((reading) => ({
+    date: reading.date,
+    // Storage/percentage data
+    ...Object.fromEntries(
+      reservoirs.map(reservoir => [
+        `${reservoir}_${showPercentage ? 'percentage' : 'storage'}`,
+        showPercentage 
+          ? reading.reservoirs[reservoir].percentage
+          : reading.reservoirs[reservoir].storage_mm3
+      ])
+    ),
+    // Precipitation data
+    ...Object.fromEntries(
+      reservoirs.map(reservoir => [
+        `${reservoir}_rainfall`,
+        reading.reservoirs[reservoir].rainfall
+      ])
+    )
+  }));
 
   const formatTooltipValue = (value: number) => {
     return showPercentage 
@@ -66,7 +93,7 @@ export function AreaChart({ data, showPercentage, reservoirs, height = 400, gran
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer>
-        <RechartsAreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+        <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           
           <XAxis 
@@ -91,6 +118,7 @@ export function AreaChart({ data, showPercentage, reservoirs, height = 400, gran
           />
           
           <YAxis 
+            yAxisId="left"
             tickFormatter={formatTickValue}
             domain={getYAxisDomain()}
             label={{ 
@@ -99,6 +127,15 @@ export function AreaChart({ data, showPercentage, reservoirs, height = 400, gran
               position: 'insideLeft' 
             }}
           />
+          
+          {showPrecipitation && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              label={{ value: 'Precipitación (mm)', angle: 90, position: 'insideRight' }}
+              domain={[0, 'dataMax + 5']}
+            />
+          )}
           
           <Tooltip 
             labelFormatter={(value) => `Fecha: ${formatDate(value)}`}
@@ -118,28 +155,39 @@ export function AreaChart({ data, showPercentage, reservoirs, height = 400, gran
           {/* Reference lines for percentage view */}
           {showPercentage && (
             <>
-              <ReferenceLine y={25} stroke="#f59e0b" strokeDasharray="5 5" label="Crítico (25%)" />
-              <ReferenceLine y={50} stroke="#f97316" strokeDasharray="5 5" label="Bajo (50%)" />
+              <ReferenceLine yAxisId="left" y={25} stroke="#f59e0b" strokeDasharray="5 5" label="Crítico (25%)" />
+              <ReferenceLine yAxisId="left" y={50} stroke="#f97316" strokeDasharray="5 5" label="Bajo (50%)" />
             </>
           )}
 
+          {/* Area charts for storage/percentage data */}
           {reservoirs.map((reservoir) => (
             <Area
               key={reservoir}
+              yAxisId="left"
               type="monotone"
-              dataKey={showPercentage 
-                ? `reservoirs.${reservoir}.percentage` 
-                : `reservoirs.${reservoir}.storage_mm3`
-              }
+              dataKey={`${reservoir}_${showPercentage ? 'percentage' : 'storage'}`}
               stackId="1"
               stroke={RESERVOIR_CONFIG[reservoir].color}
               fill={RESERVOIR_CONFIG[reservoir].color}
               fillOpacity={RESERVOIR_CONFIG[reservoir].fillOpacity}
-              name={reservoir}
+              name={RESERVOIR_CONFIG[reservoir].name}
             />
           ))}
 
-        </RechartsAreaChart>
+          {/* Precipitation bars */}
+          {showPrecipitation && reservoirs.map((reservoir) => (
+            <Bar
+              key={`${reservoir}_rainfall`}
+              yAxisId="right"
+              dataKey={`${reservoir}_rainfall`}
+              fill={PRECIPITATION_COLORS[reservoir]}
+              opacity={0.6}
+              name={`${RESERVOIR_CONFIG[reservoir].name} (Lluvia)`}
+            />
+          ))}
+
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

@@ -44,7 +44,7 @@ export function DateRangePicker({
   return (
     <div className={`relative ${className}`}>
       <Button
-        variant="outline"
+        variant="outlined"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 min-w-[200px]"
       >
@@ -108,7 +108,7 @@ export function DateRangePicker({
                   {PRESET_RANGES.map((preset) => (
                     <Button
                       key={preset.days}
-                      variant="outline"
+                      variant="outlined"
                       size="sm"
                       onClick={() => handlePresetClick(preset.days)}
                       className="text-xs"
@@ -121,7 +121,7 @@ export function DateRangePicker({
 
               <div className="flex justify-between pt-2">
                 <Button
-                  variant="outline"
+                  variant="outlined"
                   size="sm"
                   onClick={handleClear}
                 >

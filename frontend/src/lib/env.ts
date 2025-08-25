@@ -33,11 +33,11 @@ function getEnvironmentConfig(): EnvironmentConfig {
     throw new Error('NEXT_PUBLIC_API_URL is required in production environment when not using mock data');
   }
   
-  // Parse debug mode flag
+  // Parse debug mode flag - disabled by default in production
   const enableDebugMode = process.env.NEXT_PUBLIC_DEBUG_MODE === 'true' || 
-                          nodeEnv === 'development';
+                          (nodeEnv === 'development' && process.env.NEXT_PUBLIC_DEBUG_MODE !== 'false');
 
-  return {
+  const config = {
     apiBaseUrl: apiBaseUrl || 'http://localhost:8000/api/v1',
     isDevelopment: nodeEnv === 'development',
     isProduction: nodeEnv === 'production',
@@ -46,6 +46,18 @@ function getEnvironmentConfig(): EnvironmentConfig {
     useMockData,
     enableDebugMode,
   };
+
+  // Log configuration in development or when debug mode is explicitly enabled
+  if (nodeEnv === 'development' || process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
+    console.log('🔧 Environment Configuration:', {
+      nodeEnv: config.nodeEnv,
+      apiBaseUrl: config.apiBaseUrl,
+      useMockData: config.useMockData,
+      enableDebugMode: config.enableDebugMode,
+    });
+  }
+
+  return config;
 }
 
 export const env = getEnvironmentConfig();

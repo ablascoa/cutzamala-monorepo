@@ -113,7 +113,7 @@ export function ExportMenu({
   return (
     <div className={`relative ${className}`}>
       <Button
-        variant="outline"
+        variant="outlined"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2"

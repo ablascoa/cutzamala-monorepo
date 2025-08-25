@@ -45,7 +45,7 @@ export function ChartControls({
         <div className="flex items-center space-x-2">
         <span className="text-sm font-medium text-gray-700">Mostrar:</span>
         <Button
-          variant={showPercentage ? "default" : "outline"}
+          variant={showPercentage ? "filled" : "outlined"}
           size="sm"
           onClick={onTogglePercentage}
           className="flex items-center space-x-1"

@@ -12,6 +12,7 @@ export interface DashboardState {
   selectedReservoirs: string[];
   visibleLines: string[];
   showPercentage: boolean;
+  showPrecipitation: boolean;
   granularity: Granularity;
   chartType: ChartType;
 }
@@ -26,6 +27,7 @@ const DEFAULT_STATE: DashboardState = {
   selectedReservoirs: ['valle_bravo', 'villa_victoria', 'el_bosque'],
   visibleLines: ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
   showPercentage: true,
+  showPrecipitation: false,
   granularity: 'daily',
   chartType: 'line',
 };
@@ -47,6 +49,7 @@ export function useUrlState() {
     const reservoirsParam = searchParams.get('reservoirs');
     const visibleLinesParam = searchParams.get('visibleLines');
     const showPercentageParam = searchParams.get('showPercentage');
+    const showPrecipitationParam = searchParams.get('showPrecipitation');
     const granularityParam = searchParams.get('granularity');
     const chartTypeParam = searchParams.get('chartType');
 
@@ -62,6 +65,9 @@ export function useUrlState() {
       showPercentage: showPercentageParam !== null 
         ? showPercentageParam === 'true' 
         : DEFAULT_STATE.showPercentage,
+      showPrecipitation: showPrecipitationParam !== null 
+        ? showPrecipitationParam === 'true' 
+        : DEFAULT_STATE.showPrecipitation,
       granularity: (granularityParam as Granularity) || DEFAULT_STATE.granularity,
       chartType: (chartTypeParam as ChartType) || DEFAULT_STATE.chartType,
     };
@@ -99,6 +105,10 @@ export function useUrlState() {
 
       if (newState.showPercentage !== DEFAULT_STATE.showPercentage) {
         params.set('showPercentage', String(newState.showPercentage));
+      }
+
+      if (newState.showPrecipitation !== DEFAULT_STATE.showPrecipitation) {
+        params.set('showPrecipitation', String(newState.showPrecipitation));
       }
 
       if (newState.granularity !== DEFAULT_STATE.granularity) {
@@ -141,6 +151,11 @@ export function useUrlState() {
     [updateState]
   );
 
+  const setShowPrecipitation = useCallback(
+    (showPrecipitation: boolean) => updateState({ showPrecipitation }),
+    [updateState]
+  );
+
   const setGranularity = useCallback(
     (granularity: Granularity) => updateState({ granularity }),
     [updateState]
@@ -166,6 +181,7 @@ export function useUrlState() {
     setSelectedReservoirs,
     setVisibleLines,
     setShowPercentage,
+    setShowPrecipitation,
     setGranularity,
     setChartType,
     resetState,

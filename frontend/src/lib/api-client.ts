@@ -55,7 +55,7 @@ export class ApiClient {
 
       const data = await response.json();
       
-      // Wrap the successful response in the expected ApiResponse format
+      // Return the response directly since backend now returns the correct format
       return {
         status: 'success',
         data: data,
