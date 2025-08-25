@@ -69,6 +69,7 @@ export interface CutzamalaQueryParams {
   granularity?: Granularity;
   reservoirs?: string;
   format?: ResponseFormat;
+  order?: 'asc' | 'desc';
   limit?: number;
   offset?: number;
 }

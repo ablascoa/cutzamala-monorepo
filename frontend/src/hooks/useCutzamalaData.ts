@@ -22,9 +22,9 @@ export function useCutzamalaData(params?: CutzamalaQueryParams) {
       
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Force immediate staleness for debugging
+    gcTime: 1000, // 1 second
+    refetchInterval: false, // Disable auto-refetch for debugging
   });
 
   const refresh = () => {
@@ -58,8 +58,8 @@ export function useRecentReadings(days: number = 30) {
       
       return response.data;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // Force immediate staleness for debugging
+    refetchInterval: false, // Disable auto-refetch for debugging
   });
 
   const refresh = () => {
@@ -100,7 +100,7 @@ export function useDateRangeData(
       
       return response.data;
     },
-    staleTime: 30 * 1000, // 30 seconds - shorter to ensure fresh data when granularity changes
+    staleTime: 0, // Force immediate staleness for debugging
     refetchInterval: false, // Don't auto-refetch, only on user action
     enabled: Boolean(startDate && endDate), // Only run query if we have both dates
     refetchOnMount: 'always', // Always refetch when component mounts with new params

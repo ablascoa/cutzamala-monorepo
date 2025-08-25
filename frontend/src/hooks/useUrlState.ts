@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { useEarliestDate } from './useDateRange';
 
 export type Granularity = 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type ChartType = 'line' | 'area' | 'bar';
@@ -9,7 +10,7 @@ export type ChartType = 'line' | 'area' | 'bar';
 export interface DashboardState {
   startDate: Date | null;
   endDate: Date | null;
-  selectedReservoirs: string[];
+  selectedReservoirs: ('valle_bravo' | 'villa_victoria' | 'el_bosque')[];
   visibleLines: string[];
   showPercentage: boolean;
   showPrecipitation: boolean;
@@ -17,26 +18,50 @@ export interface DashboardState {
   chartType: ChartType;
 }
 
-const DEFAULT_STATE: DashboardState = {
-  startDate: (() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 90);
-    return date;
-  })(),
-  endDate: new Date(),
-  selectedReservoirs: ['valle_bravo', 'villa_victoria', 'el_bosque'],
-  visibleLines: ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
-  showPercentage: true,
-  showPrecipitation: false,
-  granularity: 'daily',
-  chartType: 'line',
-};
+// Default fallback dates (used if API is unavailable)
+const FALLBACK_START_DATE = (() => {
+  const date = new Date();
+  date.setDate(date.getDate() - 90);
+  return date;
+})();
+
+const FALLBACK_END_DATE = new Date();
 
 export function useUrlState() {
   const router = useRouter();
   const pathname = usePathname();
-  const [state, setState] = useState<DashboardState>(DEFAULT_STATE);
+  const { earliestDate, latestDate } = useEarliestDate();
+  
+  // Create dynamic default state based on API data
+  const getDefaultState = useCallback((): DashboardState => ({
+    startDate: earliestDate || FALLBACK_START_DATE,
+    endDate: latestDate || FALLBACK_END_DATE,
+    selectedReservoirs: ['valle_bravo', 'villa_victoria', 'el_bosque'],
+    visibleLines: ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
+    showPercentage: true,
+    showPrecipitation: false,
+    granularity: 'daily',
+    chartType: 'line',
+  }), [earliestDate, latestDate]);
+
+  const [state, setState] = useState<DashboardState>(() => ({
+    startDate: FALLBACK_START_DATE,
+    endDate: FALLBACK_END_DATE,
+    selectedReservoirs: ['valle_bravo', 'villa_victoria', 'el_bosque'],
+    visibleLines: ['valle_bravo', 'villa_victoria', 'el_bosque', 'system_total'],
+    showPercentage: true,
+    showPrecipitation: false,
+    granularity: 'daily',
+    chartType: 'line',
+  }));
   const [isClient, setIsClient] = useState(false);
+
+  // Update default state when API data becomes available
+  useEffect(() => {
+    if (!isClient && (earliestDate || latestDate)) {
+      setState(getDefaultState());
+    }
+  }, [earliestDate, latestDate, isClient, getDefaultState]);
 
   // Initialize from URL on client-side mount
   useEffect(() => {
@@ -53,28 +78,30 @@ export function useUrlState() {
     const granularityParam = searchParams.get('granularity');
     const chartTypeParam = searchParams.get('chartType');
 
+    const defaultState = getDefaultState();
+
     const urlState = {
-      startDate: startDateParam ? new Date(startDateParam) : DEFAULT_STATE.startDate,
-      endDate: endDateParam ? new Date(endDateParam) : DEFAULT_STATE.endDate,
+      startDate: startDateParam ? new Date(startDateParam) : defaultState.startDate,
+      endDate: endDateParam ? new Date(endDateParam) : defaultState.endDate,
       selectedReservoirs: reservoirsParam 
-        ? reservoirsParam.split(',').filter(Boolean)
-        : DEFAULT_STATE.selectedReservoirs,
+        ? reservoirsParam.split(',').filter(Boolean) as ('valle_bravo' | 'villa_victoria' | 'el_bosque')[]
+        : defaultState.selectedReservoirs,
       visibleLines: visibleLinesParam 
         ? visibleLinesParam.split(',').filter(Boolean)
-        : DEFAULT_STATE.visibleLines,
+        : defaultState.visibleLines,
       showPercentage: showPercentageParam !== null 
         ? showPercentageParam === 'true' 
-        : DEFAULT_STATE.showPercentage,
+        : defaultState.showPercentage,
       showPrecipitation: showPrecipitationParam !== null 
         ? showPrecipitationParam === 'true' 
-        : DEFAULT_STATE.showPrecipitation,
-      granularity: (granularityParam as Granularity) || DEFAULT_STATE.granularity,
-      chartType: (chartTypeParam as ChartType) || DEFAULT_STATE.chartType,
+        : defaultState.showPrecipitation,
+      granularity: (granularityParam as Granularity) || defaultState.granularity,
+      chartType: (chartTypeParam as ChartType) || defaultState.chartType,
     };
 
     setState(urlState);
     setIsClient(true);
-  }, []);
+  }, [getDefaultState]);
 
   // Update URL with new state
   const updateState = useCallback(
@@ -85,44 +112,45 @@ export function useUrlState() {
       setState(newState);
       
       const params = new URLSearchParams();
+      const defaultState = getDefaultState();
 
       // Only add non-default values to URL
-      if (newState.startDate && newState.startDate.getTime() !== DEFAULT_STATE.startDate?.getTime()) {
+      if (newState.startDate && newState.startDate.getTime() !== defaultState.startDate?.getTime()) {
         params.set('startDate', newState.startDate.toISOString().split('T')[0]);
       }
 
-      if (newState.endDate && newState.endDate.getTime() !== DEFAULT_STATE.endDate?.getTime()) {
+      if (newState.endDate && newState.endDate.getTime() !== defaultState.endDate?.getTime()) {
         params.set('endDate', newState.endDate.toISOString().split('T')[0]);
       }
 
-      if (JSON.stringify(newState.selectedReservoirs.sort()) !== JSON.stringify(DEFAULT_STATE.selectedReservoirs.sort())) {
+      if (JSON.stringify(newState.selectedReservoirs.sort()) !== JSON.stringify(defaultState.selectedReservoirs.sort())) {
         params.set('reservoirs', newState.selectedReservoirs.join(','));
       }
 
-      if (JSON.stringify(newState.visibleLines.sort()) !== JSON.stringify(DEFAULT_STATE.visibleLines.sort())) {
+      if (JSON.stringify(newState.visibleLines.sort()) !== JSON.stringify(defaultState.visibleLines.sort())) {
         params.set('visibleLines', newState.visibleLines.join(','));
       }
 
-      if (newState.showPercentage !== DEFAULT_STATE.showPercentage) {
+      if (newState.showPercentage !== defaultState.showPercentage) {
         params.set('showPercentage', String(newState.showPercentage));
       }
 
-      if (newState.showPrecipitation !== DEFAULT_STATE.showPrecipitation) {
+      if (newState.showPrecipitation !== defaultState.showPrecipitation) {
         params.set('showPrecipitation', String(newState.showPrecipitation));
       }
 
-      if (newState.granularity !== DEFAULT_STATE.granularity) {
+      if (newState.granularity !== defaultState.granularity) {
         params.set('granularity', newState.granularity);
       }
 
-      if (newState.chartType !== DEFAULT_STATE.chartType) {
+      if (newState.chartType !== defaultState.chartType) {
         params.set('chartType', newState.chartType);
       }
 
       const url = params.toString() ? `${pathname}?${params.toString()}` : pathname;
       router.replace(url, { scroll: false });
     },
-    [router, pathname, state, isClient]
+    [router, pathname, state, isClient, getDefaultState]
   );
 
   // Individual setters for convenience

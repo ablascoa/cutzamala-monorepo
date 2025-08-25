@@ -5,15 +5,15 @@ import { QueryClient, DefaultOptions } from '@tanstack/react-query';
 // React Query default configuration
 const queryConfig: DefaultOptions = {
   queries: {
-    // Default stale time: 5 minutes
-    staleTime: 5 * 60 * 1000,
-    // Default cache time: 10 minutes
-    gcTime: 10 * 60 * 1000,
+    // Force immediate staleness for development
+    staleTime: 0,
+    // Short cache time
+    gcTime: 10 * 1000,
     // Retry failed requests 3 times
     retry: 3,
-    // Don't refetch on window focus by default (can be overridden per query)
-    refetchOnWindowFocus: false,
-    // Refetch on mount if data is potentially stale
+    // Refetch on window focus in development to pick up changes
+    refetchOnWindowFocus: true,
+    // Always refetch on mount
     refetchOnMount: 'always',
     // Refetch on reconnect
     refetchOnReconnect: true,
@@ -34,10 +34,13 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   (window as unknown as Record<string, unknown>).queryClient = queryClient;
 }
 
+// Version for cache invalidation - increment when API behavior changes
+const API_VERSION = 'v3';
+
 // React Query keys for consistent cache management
 export const queryKeys = {
   cutzamala: {
-    all: ['cutzamala'] as const,
+    all: ['cutzamala', API_VERSION] as const,
     readings: () => [...queryKeys.cutzamala.all, 'readings'] as const,
     dateRange: (startDate: string, endDate: string, granularity: string) => 
       [...queryKeys.cutzamala.readings(), 'dateRange', startDate, endDate, granularity] as const,

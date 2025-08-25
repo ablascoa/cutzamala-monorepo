@@ -55,6 +55,11 @@ export class CutzamalaApiService {
     if (params?.format) queryParams.format = params.format;
     if (params?.limit) queryParams.limit = params.limit;
     if (params?.offset) queryParams.offset = params.offset;
+    
+    // Always request data in ascending chronological order for charts
+    queryParams.order = 'asc';
+
+    console.log('🔍 Final API Request Parameters:', JSON.stringify(queryParams, null, 2));
 
     try {
       const response = await this.client.get<CutzamalaResponse>('/cutzamala-readings', queryParams);

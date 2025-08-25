@@ -92,6 +92,7 @@ export class ApiClient {
     const url = new URL(endpoint, this.baseUrl);
     
     if (params) {
+      console.log(`🌐 ApiClient GET ${endpoint}:`, JSON.stringify(params, null, 2));
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           url.searchParams.append(key, String(value));
@@ -99,6 +100,7 @@ export class ApiClient {
       });
     }
 
+    console.log(`🔗 Final URL: ${url.pathname + url.search}`);
     return this.request<T>(url.pathname + url.search);
   }
 
