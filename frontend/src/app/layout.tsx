@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
+import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import { RouteErrorBoundary } from "@/components/error-boundaries/RouteErrorBoundary";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -38,6 +39,7 @@ export default function RootLayout({
           <ThemeProvider>
             <NotificationProvider>
               <Header />
+              <Navigation />
               <main className="flex-1 bg-surface-50 dark:bg-surface-900">
                 <RouteErrorBoundary>
                   {children}
